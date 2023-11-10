@@ -1,5 +1,6 @@
 import pandas as pd
 from matplotlib import pyplot as plt
+import numpy as np
 
 class Engine():
     def __init__(self, initial_cash = 1000) -> None:
@@ -15,6 +16,11 @@ class Engine():
         self.net_value  = self.initial_cash
         self.net_values_list = []
         self.net_asset_list = []
+        self.net_returns_list = []
+        self.total_transaction_cost = 0
+        self.transaction_fee = 0.001
+        self.total_trades_closed = 0
+        self.gross_loss = 0
 
 
     def add_logs(self, logs: pd.DataFrame) -> None:
@@ -22,48 +28,86 @@ class Engine():
     
     def run(self) -> None:
         ## iterate over eachrow of dataframe self.logs
-        self.logs['status'] = 0
-        self.logs['assets'] = 0
-        self.logs['cash'] = 0
-        self.logs['net_value'] = 0
+        self.first_open = self.logs.iloc[0]['Open']
         for row in self.logs.itertuples():
-            signal = int(row.logs)
-            price = row.open
-            timestamp = row.Index
-            close = row.close
+            signal = int(row.signal)
+            price = row.Open
+            timestamp = row.datetime
+            close = row.Close
 
             if (self.status + signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
+                continue
             
             if self.net_value <=0:
                 print(f"maa chud gayi at {timestamp}")
                 exit(1)
+            
 
-            self.assets += signal * self.cash / price
-            self.cash -= signal * self.cash
+            # self.assets += signal * self.cash / price
+            # self.total_transaction_cost += self.transaction_fee * abs(signal * self.cash)
+            # self.cash -= signal * self.cash
+            trade_executed = False
+            if signal == 1:
+                if(self.cash > 0):
+                    if(self.assets < 0 and self.assets + self.cash/(price * (1 + self.transaction_fee)) >= 0):
+                        self.total_trades_closed += 1
+                    self.assets += self.cash / (price * (1 + self.transaction_fee))
+                    self.total_transaction_cost += self.transaction_fee * abs(self.cash/(1 + self.transaction_fee))
+                    self.cash = 0
+                    trade_executed = True
+            if signal == -1:
+                if(self.assets > 0):
+                    self.cash += self.assets * price - self.transaction_fee * abs(self.assets * price)
+                    self.total_transaction_cost += self.transaction_fee * abs(self.assets * price)
+                    self.assets = 0
+                    self.total_trades_closed += 1
+                    trade_executed = True
+                elif(self.assets == 0):
+                    self.assets -= self.cash / price
+                    self.total_transaction_cost += self.transaction_fee * abs(self.cash)
+                    self.cash += self.cash - self.transaction_fee * abs(self.cash)
+                    trade_executed = True
+
+            if(self.cash + self.assets * price < self.net_value and trade_executed):
+                self.gross_loss += (self.cash + self.assets * price) - self.net_value
             self.net_value = self.cash + self.assets * price
             self.status += signal
-            self.logs.iloc[timestamp]['status'] = self.status
-            self.logs.iloc[timestamp]['assets'] = self.assets
-            self.logs.iloc[timestamp]['cash'] = self.cash
-            self.logs.iloc[timestamp]['net_value'] = self.net_value
             self.net_values_list.append(self.net_value)
             self.net_asset_list.append(self.assets)
+            self.net_returns_list.append((self.net_value - self.initial_cash)/self.initial_cash*100)
+            if(signal != 0):
+                print(f"Trade at {timestamp} with price {price} and signal {signal} and total assets {self.assets} and total cash {self.cash} and net value {self.net_value}")
             # print(f"Net value {self.net_value}")
         
+        self.last_open = price
 
         if self.assets > 0:
             self.cash = price * self.assets
             self.assets = 0
+            self.total_trades_closed += 1
         if self.assets < 0:
             self.cash -= price * self.assets
             self.assets = 0
+            self.total_trades_closed += 1
+        
+        assert(self.assets == 0) ## Check if liquidated all assets in the end
+
+
 
     def plot(self) -> None:
-        plt.plot(self.net_asset_list)
+        plt.plot(self.net_values_list)
         plt.show()
 
     def get_metrics(self) -> dict:
-        self.metrics["max_drawdown"] = (max(self.net_values_list) - min(self.net_values_list))/max(self.net_values_list)*100
+        self.metrics["Gross Profit"] = self.cash - self.initial_cash + self.total_transaction_cost
+        self.metrics["Net Profit"] = self.cash - self.initial_cash 
+        self.metrics["Total Trades Closed"] = self.total_trades_closed
+        self.metrics["Strategy_PnL"] = self.metrics["Net Profit"]/self.initial_cash*100
+        self.metrics["Buy and Hold PnL"] = (self.last_open - self.first_open - self.transaction_fee*(self.last_open + self.first_open))/self.first_open*100
+        self.metrics["Gross Loss"] = self.gross_loss
+        max_indx = np.argmax(np.array(self.net_values_list))
+        self.metrics["Max Drawdown"] = (self.net_values_list[max_indx] - min(self.net_values_list[max_indx+1:]))/self.net_values_list[max_indx]*100
+        self.metrics["Sharpe Ratio"] = np.mean(np.array(self.net_returns_list))/np.std(np.array(self.net_returns_list))
         return self.metrics
         
