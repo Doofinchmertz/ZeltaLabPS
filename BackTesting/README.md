@@ -10,9 +10,9 @@ There are two ways of executing order:
 
 In order to run the code, go inside the `src/` folder. Put your log file inside a `logs/` folder.\
 To run and test your strategy, run `python3 main_static.py --logs logs/filename.csv > output.txt` to execute the orders static way\
-run `python3 main_compounding.py --logs logs/filename.csv > output.txt`\
+Run `python3 main_compounding.py --logs logs/filename.csv > output.txt`\
 `output.txt` now has details of every trade executed, with net metrics in the end\
-run the scripts with --gen_vis_logs flag to generate csv files with plotting data for each timestamp\
+Run the scripts with --gen_vis_logs flag to generate csv files with plotting data for each timestamp\
 Currently static way generates csv with columns : 'Trade PnL', 'Net PnL'\
 compounding way generates csv with columns : 'Net Returns', 'Net Value', 'Net Assets', 'Net Cash'\
 
