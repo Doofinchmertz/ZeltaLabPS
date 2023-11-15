@@ -1,9 +1,13 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 
 class Engine():
-    def __init__(self, initial_cash = 1000) -> None:
+    """
+    This class is responsible for running the backtest and calculating the metrics
+    """
+    def __init__(self, initial_cash = 1000, gen_vis_logs = False) -> None:
         self.initial_cash = initial_cash
         self.cash = initial_cash
         self.logs = None
@@ -21,6 +25,8 @@ class Engine():
         self.transaction_fee = 0.001
         self.total_trades_closed = 0
         self.gross_loss = 0
+        self.metrics_logs = pd.DataFrame(columns=['Net Returns', 'Net Value', 'Net Assets', 'Net Cash'])
+        self.gen_vis_logs = gen_vis_logs
 
 
     def add_logs(self, logs: pd.DataFrame) -> None:
@@ -36,6 +42,10 @@ class Engine():
             timestamp = row.datetime
             close = row.Close
 
+            if signal not in [-1, 0, 1]:
+                print(f"Invalid trade signal at {timestamp}")
+                continue
+
             if (self.status + signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
@@ -44,7 +54,6 @@ class Engine():
                 print(f"maa chud gayi at {timestamp}")
                 exit(1)
             
-
             # self.assets += signal * self.cash / price
             # self.total_transaction_cost += self.transaction_fee * abs(signal * self.cash)
             # self.cash -= signal * self.cash
@@ -77,7 +86,8 @@ class Engine():
             self.net_values_list.append(self.net_value)
             self.net_asset_list.append(self.assets)
             self.net_returns_list.append((self.net_value - self.initial_cash)/self.initial_cash*100)
-
+            if self.gen_vis_logs:
+                self.metrics_logs = pd.concat([self.metrics_logs, pd.DataFrame([[self.net_returns_list[-1], self.net_value, self.assets, self.cash]], columns=['Net Returns', 'Net Value', 'Net Assets', 'Net Cash'])])
             if(signal != 0):
                 print(f"Trade at {timestamp} with price {price} and signal {signal} and total assets {self.assets} and total cash {self.cash} and net value {self.net_value}")
             # print(f"Net value {self.net_value}")
@@ -101,6 +111,10 @@ class Engine():
         plt.show()
 
     def get_metrics(self) -> dict:
+        if self.gen_vis_logs:
+            if not os.path.exists("metric_logs"):
+                os.makedirs("metric_logs")
+            self.metrics_logs.to_csv("metric_logs/compounding_metric_logs.csv")
         self.metrics["Gross Profit"] = self.cash - self.initial_cash + self.total_transaction_cost
         self.metrics["Net Profit"] = self.cash - self.initial_cash 
         self.metrics["Total Trades Closed"] = self.total_trades_closed

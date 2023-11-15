@@ -1,4 +1,4 @@
-from engine import Engine
+from engine_compounding import Engine
 import pandas as pd
 import sys
 import argparse
@@ -6,10 +6,11 @@ import argparse
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--logs", help = "path to logs file", required = True)    
+    parser.add_argument("--logs", help = "path to logs file", required = True)
+    parser.add_argument('--gen_vis_logs', action='store_true', help='Generate visual logs')
     args = parser.parse_args()
 
-    e = Engine()
+    e = Engine(gen_vis_logs=args.gen_vis_logs)
     df = pd.read_csv(args.logs)
     e.add_logs(df)
     e.run()
