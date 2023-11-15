@@ -29,6 +29,7 @@ class Engine():
     def run(self) -> None:
         ## iterate over eachrow of dataframe self.logs
         self.first_open = self.logs.iloc[0]['Open']
+        
         for row in self.logs.itertuples():
             signal = int(row.signal)
             price = row.Open
@@ -76,6 +77,7 @@ class Engine():
             self.net_values_list.append(self.net_value)
             self.net_asset_list.append(self.assets)
             self.net_returns_list.append((self.net_value - self.initial_cash)/self.initial_cash*100)
+
             if(signal != 0):
                 print(f"Trade at {timestamp} with price {price} and signal {signal} and total assets {self.assets} and total cash {self.cash} and net value {self.net_value}")
             # print(f"Net value {self.net_value}")
@@ -92,7 +94,6 @@ class Engine():
             self.total_trades_closed += 1
         
         assert(self.assets == 0) ## Check if liquidated all assets in the end
-
 
 
     def plot(self) -> None:
