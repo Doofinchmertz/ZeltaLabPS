@@ -55,7 +55,7 @@ class Engine():
                 if(self.status == 0):
                     self.assets = self.each_trade_amount / price
                 elif(self.status == -1):
-                    trade_pnl = self.each_trade_amount - self.assets * price
+                    trade_pnl = self.each_trade_amount + self.assets * price
                     self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
@@ -84,7 +84,7 @@ class Engine():
                 self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
                 self.winning_trades_lst.append(trade_pnl)
                 self.num_win_trades += 1
-            else:
+            elif trade_pnl < 0:
                 self.gross_loss += trade_pnl
                 self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
                 self.losing_trades_lst.append(trade_pnl)
@@ -110,14 +110,14 @@ class Engine():
                 self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
                 self.winning_trades_lst.append(trade_pnl)
                 self.num_win_trades += 1
-            else:
+            elif trade_pnl < 0:
                 self.gross_loss += trade_pnl
                 self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
                 self.losing_trades_lst.append(trade_pnl)
                 self.num_lose_trades += 1
             
         elif self.assets < 0:
-            trade_pnl = self.each_trade_amount - self.assets * close
+            trade_pnl = self.each_trade_amount + self.assets * close
             self.net_pnl += trade_pnl
             self.assets = 0
             self.daily_pnl_lst.append(trade_pnl)
@@ -129,7 +129,7 @@ class Engine():
                 self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
                 self.winning_trades_lst.append(trade_pnl)
                 self.num_win_trades += 1
-            else:
+            elif trade_pnl < 0:
                 self.gross_loss += trade_pnl
                 self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
                 self.losing_trades_lst.append(trade_pnl)

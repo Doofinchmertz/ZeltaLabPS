@@ -1,4 +1,4 @@
-from engine_compounding import Engine
+from engine_static import Engine
 import pandas as pd
 import sys
 import argparse
@@ -27,5 +27,4 @@ if __name__ == "__main__":
     print(f"Average Losing Trade {metrics['Average Losing Trade']}")
     print(f"Number of Winning Trades {metrics['Number of Winning Trades']}")
     print(f"Number of Losing Trades {metrics['Number of Losing Trades']}")
-    print(f"Final Cash {metrics['Final Cash']}")
     e.plot()

@@ -4,125 +4,176 @@ import numpy as np
 import os
 
 class Engine():
-    """
-    This class is responsible for running the backtest and calculating the metrics
-    """
     def __init__(self, initial_cash = 1000, gen_vis_logs = False) -> None:
-        self.initial_cash = initial_cash
-        self.cash = initial_cash
         self.logs = None
-        self.current_position = 0
-        self.total_buy_trades = 0
-        self.total_sell_trades = 0
-        self.metrics = {}
-        self.assets = 0
+        self.initial_cash = initial_cash
+        self.cash = self.initial_cash
         self.status = 0
-        self.net_value  = self.initial_cash
-        self.net_values_list = []
-        self.net_asset_list = []
-        self.net_returns_list = []
-        self.total_transaction_cost = 0
-        self.transaction_fee = 0.001
-        self.total_trades_closed = 0
+        self.net_pnl = 0
+        self.max_total_loss_capacity = - 100*self.initial_cash
+        self.daily_pnl_lst = []
+        self.net_pnl_lst = []
+        self.metrics = {}
+        self.gross_profit = 0
         self.gross_loss = 0
-        self.metrics_logs = pd.DataFrame(columns=['Net Returns', 'Net Value', 'Net Assets', 'Net Cash'])
+        self.total_trades_closed = 0
+        self.largest_winning_trade = 0
+        self.largest_losing_trade = 0
+        self.min_net_pnl = 1e10
+        self.winning_trades_lst = []
+        self.losing_trades_lst = []
+        self.num_win_trades = 0
+        self.num_lose_trades = 0
+        self.metrics_logs = pd.DataFrame(columns=['Trade PnL', 'Net PnL'])
         self.gen_vis_logs = gen_vis_logs
-
+        self.last_bough_amt = 0
+        self.last_sold_amt = 0
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
-    
+
     def run(self) -> None:
-        ## iterate over eachrow of dataframe self.logs
-        self.first_open = self.logs.iloc[0]['Open']
-        
+
         for row in self.logs.itertuples():
             signal = int(row.signal)
             price = row.Open
             timestamp = row.datetime
             close = row.Close
 
-            if signal not in [-1, 0, 1]:
+            if (signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
 
-            if (self.status + signal) not in [-1, 0, 1]:
+            if(self.status + signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
-            
-            if self.net_value <=0:
+
+            if(self.net_pnl < self.max_total_loss_capacity):
                 print(f"maa chud gayi at {timestamp}")
                 exit(1)
-            
-            # self.assets += signal * self.cash / price
-            # self.total_transaction_cost += self.transaction_fee * abs(signal * self.cash)
-            # self.cash -= signal * self.cash
-            trade_executed = False
+
+            trade_pnl = 0
+
             if signal == 1:
-                if(self.cash > 0):
-                    if(self.assets < 0 and self.assets + self.cash/(price * (1 + self.transaction_fee)) >= 0):
-                        self.total_trades_closed += 1
-                    self.assets += self.cash / (price * (1 + self.transaction_fee))
-                    self.total_transaction_cost += self.transaction_fee * abs(self.cash/(1 + self.transaction_fee))
+                if(self.status == 0):
+                    self.assets = self.cash / price
+                    self.last_bough_amt = self.cash
                     self.cash = 0
-                    trade_executed = True
-            if signal == -1:
-                if(self.assets > 0):
-                    self.cash += self.assets * price - self.transaction_fee * abs(self.assets * price)
-                    self.total_transaction_cost += self.transaction_fee * abs(self.assets * price)
+                elif(self.status == -1):
+                    trade_pnl = self.last_sold_amt + self.assets * price
+                    self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
-                    trade_executed = True
-                elif(self.assets == 0):
-                    self.assets -= self.cash / price
-                    self.total_transaction_cost += self.transaction_fee * abs(self.cash)
-                    self.cash += self.cash - self.transaction_fee * abs(self.cash)
-                    trade_executed = True
+                    self.cash -= self.last_sold_amt
+                else:
+                    print(f"Invalid trade signal at {timestamp}")
+                    continue
 
-            if(self.cash + self.assets * price < self.net_value and trade_executed):
-                self.gross_loss += (self.cash + self.assets * price) - self.net_value
-            self.net_value = self.cash + self.assets * price
+            if signal == -1:
+                if(self.status == 0):
+                    self.assets = -self.cash / price
+                    self.last_sold_amt = self.cash
+                    self.cash += self.cash
+                elif(self.status == 1):
+                    trade_pnl = self.assets * price - self.last_bough_amt
+                    self.net_pnl += trade_pnl
+                    self.assets = 0
+                    self.total_trades_closed += 1
+                    self.cash = self.last_bough_amt
+                else:
+                    print(f"Invalid trade signal at {timestamp}")
+                    continue
+
+            ## Updating status
             self.status += signal
-            self.net_values_list.append(self.net_value)
-            self.net_asset_list.append(self.assets)
-            self.net_returns_list.append((self.net_value - self.initial_cash)/self.initial_cash*100)
+            self.daily_pnl_lst.append(trade_pnl)
+            self.net_pnl_lst.append(self.net_pnl)
+            self.cash += trade_pnl
+            if trade_pnl > 0:
+                self.gross_profit += trade_pnl
+                self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
+                self.winning_trades_lst.append(trade_pnl)
+                self.num_win_trades += 1
+            elif trade_pnl < 0:
+                self.gross_loss += trade_pnl
+                self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
+                self.losing_trades_lst.append(trade_pnl)
+                self.num_lose_trades += 1
+
+            self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
             if self.gen_vis_logs:
-                self.metrics_logs = pd.concat([self.metrics_logs, pd.DataFrame([[self.net_returns_list[-1], self.net_value, self.assets, self.cash]], columns=['Net Returns', 'Net Value', 'Net Assets', 'Net Cash'])])
+                self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
+
             if(signal != 0):
-                print(f"Trade at {timestamp} with price {price} and signal {signal} and total assets {self.assets} and total cash {self.cash} and net value {self.net_value}")
-            # print(f"Net value {self.net_value}")
-        
-        self.last_open = price
+                print(f"Trade at {timestamp} with price {price} and signal {signal}, total assets : {self.assets}, trade_pnl : {trade_pnl}, net_pnl : {self.net_pnl}, net_cash : {self.cash}")
 
         if self.assets > 0:
-            self.cash = price * self.assets
+            trade_pnl = self.assets * close - self.last_bough_amt
+            self.net_pnl += trade_pnl
             self.assets = 0
+            self.daily_pnl_lst.append(trade_pnl)
+            self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
-        if self.assets < 0:
-            self.cash -= price * self.assets
+            self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
+            if trade_pnl > 0:
+                self.gross_profit += trade_pnl
+                self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
+                self.winning_trades_lst.append(trade_pnl)
+                self.num_win_trades += 1
+            elif trade_pnl < 0:
+                self.gross_loss += trade_pnl
+                self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
+                self.losing_trades_lst.append(trade_pnl)
+                self.num_lose_trades += 1
+            self.cash += trade_pnl
+            
+        elif self.assets < 0:
+            trade_pnl = self.last_sold_amt + self.assets * close
+            self.net_pnl += trade_pnl
             self.assets = 0
+            self.daily_pnl_lst.append(trade_pnl)
+            self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
-        
-        assert(self.assets == 0) ## Check if liquidated all assets in the end
+            self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
+            if trade_pnl > 0:
+                self.gross_profit += trade_pnl
+                self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
+                self.winning_trades_lst.append(trade_pnl)
+                self.num_win_trades += 1
+            elif trade_pnl < 0:
+                self.gross_loss += trade_pnl
+                self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
+                self.losing_trades_lst.append(trade_pnl)
+                self.num_lose_trades += 1
+            self.cash += trade_pnl
 
+        if self.gen_vis_logs:
+            self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
 
-    def plot(self) -> None:
-        plt.plot(self.net_values_list)
+    def plot(self)-> None:
+        plt.plot(self.net_pnl_lst)
+        plt.axhline(y=0, color='black', linestyle='--') # add this line to draw x-axis at y=0
+        plt.title("Net PnL")
+        plt.xlabel("Time")
+        plt.ylabel("Net PnL")
         plt.show()
 
     def get_metrics(self) -> dict:
         if self.gen_vis_logs:
             if not os.path.exists("metric_logs"):
                 os.makedirs("metric_logs")
-            self.metrics_logs.to_csv("metric_logs/compounding_metric_logs.csv")
-        self.metrics["Gross Profit"] = self.cash - self.initial_cash + self.total_transaction_cost
-        self.metrics["Net Profit"] = self.cash - self.initial_cash 
-        self.metrics["Total Trades Closed"] = self.total_trades_closed
-        self.metrics["Strategy_PnL"] = self.metrics["Net Profit"]/self.initial_cash*100
-        self.metrics["Buy and Hold PnL"] = (self.last_open - self.first_open - self.transaction_fee*(self.last_open + self.first_open))/self.first_open*100
+            self.metrics_logs.to_csv("metric_logs/static_metric_logs.csv")
+        self.metrics["Net PnL"] = self.net_pnl
+        self.metrics["Gross Profit"] = self.gross_profit
         self.metrics["Gross Loss"] = self.gross_loss
-        max_indx = np.argmax(np.array(self.net_values_list))
-        self.metrics["Max Drawdown"] = (self.net_values_list[max_indx] - min(self.net_values_list[max_indx+1:]))/self.net_values_list[max_indx]*100
-        self.metrics["Sharpe Ratio"] = np.mean(np.array(self.net_returns_list))/np.std(np.array(self.net_returns_list))
+        self.metrics["Total Trades Closed"] = self.total_trades_closed
+        self.metrics["Sharpe Ratio"] = np.mean(np.array(self.daily_pnl_lst))/np.std(np.array(self.daily_pnl_lst))
+        self.metrics["Largest Winning Trade"] = self.largest_winning_trade
+        self.metrics["Largest Losing Trade"] = self.largest_losing_trade
+        self.metrics["Min Net PnL"] = self.min_net_pnl
+        self.metrics["Average Winning Trade"] = np.mean(np.array(self.winning_trades_lst))
+        self.metrics["Average Losing Trade"] = np.mean(np.array(self.losing_trades_lst))
+        self.metrics["Number of Winning Trades"] = self.num_win_trades
+        self.metrics["Number of Losing Trades"] = self.num_lose_trades
+        self.metrics["Final Cash"] = self.cash
         return self.metrics
-        
