@@ -10,7 +10,7 @@ class Engine():
         self.status = 0
         self.net_pnl = 0
         self.max_total_loss_capacity = - 100*self.each_trade_amount
-        self.daily_pnl_lst = []
+        self.trade_pnl_lst = []
         self.net_pnl_lst = []
         self.metrics = {}
         self.gross_profit = 0
@@ -25,6 +25,8 @@ class Engine():
         self.num_lose_trades = 0
         self.metrics_logs = pd.DataFrame(columns=['Trade PnL', 'Net PnL'])
         self.gen_vis_logs = gen_vis_logs
+        self.assets = 0
+        self.open_price_lst = []
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
@@ -32,11 +34,13 @@ class Engine():
     def run(self) -> None:
         for row in self.logs.itertuples():
             signal = int(row.signal)
-            price = row.Open
             timestamp = row.datetime
-            close = row.Close
+            close = row.close
+            open = row.open
+            price = open
+            trade_closed = False
+            self.open_price_lst.append(open)
 
-            
             if (signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
@@ -59,6 +63,7 @@ class Engine():
                     self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
+                    trade_closed = True
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
@@ -71,13 +76,15 @@ class Engine():
                     self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
+                    trade_closed = True
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
 
             ## Updating status
             self.status += signal
-            self.daily_pnl_lst.append(trade_pnl)
+            if trade_closed:
+                self.trade_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             if trade_pnl > 0:
                 self.gross_profit += trade_pnl
@@ -101,7 +108,7 @@ class Engine():
             trade_pnl = self.assets * close - self.each_trade_amount
             self.net_pnl += trade_pnl
             self.assets = 0
-            self.daily_pnl_lst.append(trade_pnl)
+            self.trade_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
@@ -120,7 +127,7 @@ class Engine():
             trade_pnl = self.each_trade_amount + self.assets * close
             self.net_pnl += trade_pnl
             self.assets = 0
-            self.daily_pnl_lst.append(trade_pnl)
+            self.trade_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
@@ -138,11 +145,23 @@ class Engine():
             self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
 
     def plot(self)-> None:
-        plt.plot(self.net_pnl_lst)
-        plt.axhline(y=0, color='black', linestyle='--') # add this line to draw x-axis at y=0
-        plt.title("Net PnL")
-        plt.xlabel("Time")
-        plt.ylabel("Net PnL")
+        fig, ax = plt.subplots()
+        ax.plot(self.net_pnl_lst, label='Net PnL')
+        ax.axhline(y=0, color='black', linestyle='--')
+        ax.set_title("Net PnL and Open Price")
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Net PnL")
+        
+        ax2 = ax.twinx()
+        ax2.plot(self.open_price_lst, label='Open Price', color='orange')
+        ax2.axhline(y=0, color='black', linestyle='--')
+        ax2.set_ylabel("Open Price")
+        
+        # combine the legend entries from both plots
+        lines, labels = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax.legend(lines + lines2, labels + labels2, loc='upper left')
+        
         plt.show()
 
     def get_metrics(self) -> dict:
@@ -154,7 +173,7 @@ class Engine():
         self.metrics["Gross Profit"] = self.gross_profit
         self.metrics["Gross Loss"] = self.gross_loss
         self.metrics["Total Trades Closed"] = self.total_trades_closed
-        self.metrics["Sharpe Ratio"] = np.mean(np.array(self.daily_pnl_lst))/np.std(np.array(self.daily_pnl_lst))
+        self.metrics["Sharpe Ratio"] = np.mean(np.array(self.trade_pnl_lst))/np.std(np.array(self.trade_pnl_lst))
         self.metrics["Largest Winning Trade"] = self.largest_winning_trade
         self.metrics["Largest Losing Trade"] = self.largest_losing_trade
         self.metrics["Min Net PnL"] = self.min_net_pnl
