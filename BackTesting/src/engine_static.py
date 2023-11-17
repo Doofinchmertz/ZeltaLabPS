@@ -30,13 +30,13 @@ class Engine():
         self.logs = logs
 
     def run(self) -> None:
-
         for row in self.logs.itertuples():
             signal = int(row.signal)
             price = row.Open
             timestamp = row.datetime
             close = row.Close
 
+            
             if (signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
@@ -162,4 +162,7 @@ class Engine():
         self.metrics["Average Losing Trade"] = np.mean(np.array(self.losing_trades_lst))
         self.metrics["Number of Winning Trades"] = self.num_win_trades
         self.metrics["Number of Losing Trades"] = self.num_lose_trades
+        self.net_portfolio_lst = np.array(self.net_pnl_lst) + self.each_trade_amount
+        self.metrics["Maximum Drawdown"] = np.max((1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst)))*100
+        print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
         return self.metrics
