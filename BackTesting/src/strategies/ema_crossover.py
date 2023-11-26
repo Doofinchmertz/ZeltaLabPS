@@ -1,6 +1,13 @@
 import pandas as pd
-from data_handler import get_data
-def calculate_ema(data, window, column='Close'):
+
+def read_file(filename):
+    return pd.read_csv(filename, index_col=0, parse_dates=True, infer_datetime_format=True)
+
+def get_data(timeframe):
+    return read_file("../../data/btcusdt_" + timeframe + ".csv")
+
+
+def calculate_ema(data, window, column='close'):
     return data[column].ewm(span=window, adjust=False).mean()
 
 def ema_crossover(data, short_window=12, long_window=26):
@@ -39,7 +46,7 @@ def ema_crossover(data, short_window=12, long_window=26):
 
     return data
 
-time_frame = "1h"
+time_frame = "3m"
 # Load data
 data = get_data(time_frame)
 
@@ -47,4 +54,4 @@ data = get_data(time_frame)
 data = ema_crossover(data)
 
 # Save to CSV
-data.to_csv("ema_crossover_" + time_frame + ".csv")
+data.to_csv("../logs/ema_crossover_" + time_frame + ".csv")

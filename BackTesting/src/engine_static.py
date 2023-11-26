@@ -27,6 +27,7 @@ class Engine():
         self.gen_vis_logs = gen_vis_logs
         self.assets = 0
         self.open_price_lst = []
+        self.close_price_lst = []
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
@@ -37,9 +38,10 @@ class Engine():
             timestamp = row.datetime
             close = row.close
             open = row.open
-            price = open
+            price = close
             trade_closed = False
             self.open_price_lst.append(open)
+            self.close_price_lst.append(close)
 
             if (signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
@@ -153,7 +155,7 @@ class Engine():
         ax.set_ylabel("Net PnL")
         
         ax2 = ax.twinx()
-        ax2.plot(self.open_price_lst, label='Open Price', color='orange')
+        ax2.plot(self.close_price_lst, label='Open Price', color='orange')
         ax2.axhline(y=0, color='black', linestyle='--')
         ax2.set_ylabel("Open Price")
         
