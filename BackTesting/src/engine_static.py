@@ -38,7 +38,7 @@ class Engine():
             timestamp = row.datetime
             close = row.close
             open = row.open
-            price = close
+            price = open
             trade_closed = False
             self.open_price_lst.append(open)
             self.close_price_lst.append(close)
@@ -146,11 +146,12 @@ class Engine():
         if self.gen_vis_logs:
             self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
 
-    def plot(self)-> None:
+    def plot(self) -> None:
         fig, ax = plt.subplots()
-        ax.plot(self.net_pnl_lst, label='Net PnL')
+        ax.plot(self.net_pnl_lst[:-1], label='Net PnL')
         ax.axhline(y=0, color='black', linestyle='--')
         ax.set_title("Net PnL and Open Price")
+        
         ax.set_xlabel("Time")
         ax.set_ylabel("Net PnL")
         
@@ -159,6 +160,12 @@ class Engine():
         ax2.axhline(y=0, color='black', linestyle='--')
         ax2.set_ylabel("Open Price")
         
+        # Set xtick values using self.logs['datetime']
+        len = self.logs.shape[0] - 1
+        xticks = [0, len//4, 2*(len//4), 3*(len//4), len]  # Set xticks at the start and end
+        ax.set_xticks(xticks)
+        ax.set_xticklabels([self.logs.loc[0, 'datetime'], self.logs.loc[len//4, 'datetime'], self.logs.loc[2*(len//4), 'datetime'], self.logs.loc[3*(len//4), 'datetime'], self.logs.loc[len, 'datetime']])  # Set labels at the start and end
+            
         # combine the legend entries from both plots
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
