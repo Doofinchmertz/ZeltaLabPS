@@ -23,7 +23,7 @@ df.head()
 df['Daily_Return'] = df['close'].pct_change()*1000
 
 # Next k Days Return (Cumulative)
-k = 1
+k = 5
 df[f'Next_{k}_Days_Return'] = df['close'].pct_change(k).shift(-k)*1000
 
 # RSI
