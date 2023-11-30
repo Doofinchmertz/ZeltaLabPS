@@ -2,17 +2,21 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import sys
+
+
+name = sys.argv[1] # "train", "test", "val"
 
 def read_file(filename):
     return pd.read_csv(filename, index_col=0, parse_dates=True, infer_datetime_format=True)
 
-def get_data(timeframe):
-    return read_file("../data/btcusdt_" + timeframe + "_total.csv")
+def get_data(timeframe, name):
+    return read_file("../data/btcusdt_" + timeframe + "_" + name + ".csv")
 
 # Tick Size of Data
 time_frame = "5m"
 # Load data
-df = get_data(time_frame)
+df = get_data(time_frame, name)
 df.head()
 
 # Indicators
@@ -65,4 +69,4 @@ df = df.drop(['high', 'low', 'MACD', 'Short_MA', 'Long_MA'], axis=1)
 df = df.dropna()
 
 # Get the final df with indicators to junk.csv
-df.to_csv("data_with_indicators/btcusdt_" + time_frame + "_total.csv")
+df.to_csv("data_with_indicators/btcusdt_" + time_frame + "_" + name + ".csv")
