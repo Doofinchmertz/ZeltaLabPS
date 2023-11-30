@@ -38,7 +38,7 @@ class Engine():
             timestamp = row.datetime
             close = row.close
             open = row.open
-            price = open
+            price = close
             trade_closed = False
             self.open_price_lst.append(open)
             self.close_price_lst.append(close)
