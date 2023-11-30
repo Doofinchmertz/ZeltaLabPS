@@ -13,7 +13,7 @@ def get_data(timeframe):
 time_frame = "5m"
 # Load data
 df = get_data(time_frame)
-df.head()
+
 
 # Calculate the correlation matrix
 correlation_matrix = df.corr()
