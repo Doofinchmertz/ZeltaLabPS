@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import sys
 
-name = sys.argv[1] if sys.argv[1] else "train" # "train", "test", "val"
+name = sys.argv[1] if len(sys.argv) > 1 else "train" # "train", "test", "val"
 
 def read_file(filename):
     return pd.read_csv(filename, index_col=0, parse_dates=True, infer_datetime_format=True)

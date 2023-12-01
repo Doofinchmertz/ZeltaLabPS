@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import sys
 
 
-name = sys.argv[1] # "train", "test", "val"
+name = sys.argv[1] # "train", "total", "val"
 
 def read_file(filename):
     return pd.read_csv(filename, index_col=0, parse_dates=True, infer_datetime_format=True)
@@ -23,7 +23,8 @@ df.head()
 df['Daily_Return'] = df['close'].pct_change()*1000
 
 # Next k Days Return (Cumulative)
-k = 5
+k = sys.argv[2]
+k = int(k)
 df[f'Next_{k}_Days_Return'] = df['close'].pct_change(k).shift(-k)*1000
 
 # RSI
