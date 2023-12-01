@@ -28,4 +28,5 @@ if __name__ == "__main__":
     print(f"Number of Winning Trades {metrics['Number of Winning Trades']}")
     print(f"Number of Losing Trades {metrics['Number of Losing Trades']}")
     print(f"Max Drawdown {metrics['Maximum Drawdown']}")
+    print(f"Total Transaction Cost {metrics['Total Transaction Cost']}")
     e.plot()

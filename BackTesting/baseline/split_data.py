@@ -13,9 +13,9 @@ def get_data(timeframe, name):
     return read_file("data_with_indicators/btcusdt_" + timeframe + "_" + name + ".csv")
 
 # Tick Size of Data
-time_frame = "5m"
+time_frame = sys.argv[1]
 
-k = sys.argv[1]
+k = sys.argv[2]
 
 df = get_data(time_frame, 'total')
 
@@ -63,7 +63,7 @@ print("model_coef", model.coef_)
 
 # Predict the dependent variable of the training data
 y_pred = model.predict(X_train)
-quantile_value = np.quantile(np.abs(y_pred), 0.9)
+quantile_value = np.quantile(np.abs(y_pred), 0.999)
 print("quantile value: ", quantile_value)
 print(np.corrcoef(y_pred, y_train)[0,1])
 
@@ -76,6 +76,7 @@ print(np.corrcoef(y_pred, y_test)[0,1])
 quantile_value = 0
 df_test['indicator'] = np.where(y_pred > quantile_value, 1, np.where(y_pred < -quantile_value, -1, 0))
 data = df_test
+
 tot = 0
 for index, _ in data.iterrows():
     data.at[index, 'signal'] = 0

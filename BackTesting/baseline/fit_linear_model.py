@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 import numpy as np
 
-k = sys.argv[1]
+k = sys.argv[2]
 
 def read_file(filename):
     return pd.read_csv(filename, index_col=0, parse_dates=True, infer_datetime_format=True)
@@ -12,7 +12,7 @@ def get_data(timeframe, name):
     return read_file("data_with_indicators/btcusdt_" + timeframe + "_" + name + ".csv")
 
 # Tick Size of Data
-time_frame = "5m"
+time_frame = sys.argv[1]
 # Load data
 df_train = get_data(time_frame, "train")
 df_val = get_data(time_frame, "val")
@@ -20,7 +20,7 @@ df_val = get_data(time_frame, "val")
 # df_train, df_val = train_test_split(df_, test_size=0.2, shuffle=False)
 
 # Create the linear regression model
-model = Lasso(alpha=0.002, max_iter=1000)
+model = LinearRegression()
 
 
 # Define the independent variables
@@ -47,10 +47,9 @@ print("model_coef", model.coef_)
 
 # Predict the dependent variable of the training data
 y_pred = model.predict(X_train)
-quantile_value = np.quantile(np.abs(y_pred), 0.9)
+quantile_value = np.quantile(np.abs(y_pred), 0.99)
 print("quantile value: ", quantile_value)
 print(np.corrcoef(y_pred, y_train)[0,1])
-# quantile_value = 0
 
 df_train['indicator'] = np.where(y_pred > quantile_value, 1, np.where(y_pred < -quantile_value, -1, 0))
 data = df_train
