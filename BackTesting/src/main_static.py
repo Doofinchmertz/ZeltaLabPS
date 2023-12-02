@@ -6,11 +6,12 @@ import argparse
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--logs", help = "path to logs file", required = True)    
+    parser.add_argument("--logs", help="path to logs file", required=True)
     parser.add_argument('--gen_vis_logs', action='store_true', help='Generate visual logs')
+    parser.add_argument('--wtc', action='store_true', help='without transaction cost')
     args = parser.parse_args()
-
-    e = Engine(gen_vis_logs=args.gen_vis_logs)
+    
+    e = Engine(log_name = args.logs, without_transaction_cost=args.wtc)
     df = pd.read_csv(args.logs)
     e.add_logs(df)
     e.run()
@@ -30,4 +31,6 @@ if __name__ == "__main__":
     print(f"Max Drawdown {metrics['Maximum Drawdown']}")
     print(f"Total Transaction Cost {metrics['Total Transaction Cost']}")
     print(f"Average Trade Holding Duration {metrics['Average Trade Holding Duration']}")
+    print(f"Immediate Losses {metrics['Immediate Losses']}" )
+    print(f"Immediate Profits {metrics['Immediate Profits']}" )
     e.plot()

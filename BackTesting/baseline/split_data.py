@@ -73,7 +73,7 @@ print(np.corrcoef(y_pred, y_val)[0,1])
 y_pred = model.predict(X_test)
 print(np.corrcoef(y_pred, y_test)[0,1])
 
-quantile_value = 0
+# quantile_value = 0
 df_test['indicator'] = np.where(y_pred > quantile_value, 1, np.where(y_pred < -quantile_value, -1, 0))
 data = df_test
 

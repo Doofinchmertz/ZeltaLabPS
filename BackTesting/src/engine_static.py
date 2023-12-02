@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 class Engine():
-    def __init__(self, static_trade_amount = 1000, gen_vis_logs = False) -> None:
+    def __init__(self, log_name = None, static_trade_amount = 1000, gen_vis_logs = False, without_transaction_cost = False) -> None:
         self.logs = None
         self.each_trade_amount = static_trade_amount
         self.status = 0
@@ -30,8 +30,14 @@ class Engine():
         self.close_price_lst = []
         self.transaction_cost = 0.0015
         self.total_transaction_cost = 0
+        if without_transaction_cost:
+            self.transaction_cost = 0
         self.last_trade_open_time = None
         self.trade_holding_times = []
+        self.immediate_losses = 0
+        self.immediate_profits = 0
+        self.min_time_diff = pd.Timedelta(minutes=5)
+        self.log_name = log_name
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
@@ -76,6 +82,11 @@ class Engine():
                     self.total_trades_closed += 1
                     trade_closed = True
                     self.trade_holding_times.append(timestamp - self.last_trade_open_time)
+                    if timestamp - self.last_trade_open_time == self.min_time_diff:
+                        if trade_pnl + self.transaction_cost * self.each_trade_amount > 0:
+                            self.immediate_profits += trade_pnl + self.transaction_cost * self.each_trade_amount
+                        else:
+                            self.immediate_losses += trade_pnl + self.transaction_cost * self.each_trade_amount
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
@@ -93,6 +104,11 @@ class Engine():
                     self.total_trades_closed += 1
                     trade_closed = True
                     self.trade_holding_times.append(timestamp - self.last_trade_open_time)
+                    if timestamp - self.last_trade_open_time == self.min_time_diff:
+                        if trade_pnl + self.transaction_cost * self.each_trade_amount > 0:
+                            self.immediate_profits += trade_pnl + self.transaction_cost * self.each_trade_amount
+                        else:
+                            self.immediate_losses += trade_pnl + self.transaction_cost * self.each_trade_amount
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
@@ -200,6 +216,15 @@ class Engine():
             if not os.path.exists("metric_logs"):
                 os.makedirs("metric_logs")
             self.metrics_logs.to_csv("metric_logs/static_metric_logs.csv")
+
+        # file_path = "plotting_data.csv"
+        # if os.path.exists(file_path):
+        #     plotting_data = pd.read_csv(file_path)
+        #     plotting_data['datetime'] = pd.to_datetime(plotting_data['datetime'])
+        #     plotting_data.set_index('datetime', inplace=True)
+        #     plotting_data[self.log_name] = pd.Series(self.net_pnl_lst).values
+        #     plotting_data.to_csv(file_path, index=True)
+
         self.metrics["Net PnL"] = self.net_pnl
         self.metrics["Gross Profit"] = self.gross_profit
         self.metrics["Gross Loss"] = self.gross_loss
@@ -216,6 +241,8 @@ class Engine():
         self.metrics["Maximum Drawdown"] = np.max((1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst)))*100
         self.metrics["Total Transaction Cost"] = self.total_transaction_cost
         self.metrics["Average Trade Holding Duration"] = np.mean([self.trade_holding_times])
+        self.metrics["Immediate Losses"] = self.immediate_losses
+        self.metrics["Immediate Profits"] = self.immediate_profits
         print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
-
+        
         return self.metrics
