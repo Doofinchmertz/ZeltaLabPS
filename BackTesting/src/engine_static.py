@@ -28,8 +28,10 @@ class Engine():
         self.assets = 0
         self.open_price_lst = []
         self.close_price_lst = []
-        self.transaction_cost = 0.001
+        self.transaction_cost = 0.0015
         self.total_transaction_cost = 0
+        self.last_trade_open_time = None
+        self.trade_holding_times = []
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
@@ -38,12 +40,14 @@ class Engine():
         for row in self.logs.itertuples():
             signal = int(row.signal)
             timestamp = row.datetime
+            timestamp = pd.to_datetime(timestamp)
             close = row.close
             open = row.open
             price = close
             trade_closed = False
             self.open_price_lst.append(open)
             self.close_price_lst.append(close)
+
 
             if (signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
@@ -62,16 +66,16 @@ class Engine():
             if signal == 1:
                 if(self.status == 0):
                     self.assets = self.each_trade_amount / price
-                    trade_pnl -= self.transaction_cost * self.each_trade_amount
-                    self.total_transaction_cost += self.transaction_cost * self.each_trade_amount
+                    self.last_trade_open_time = timestamp
                 elif(self.status == -1):
                     trade_pnl = self.each_trade_amount + self.assets * price
-                    trade_pnl -= abs(self.transaction_cost * self.assets * price)
-                    self.total_transaction_cost += abs(self.transaction_cost * self.assets * price) 
+                    trade_pnl -= self.transaction_cost * self.each_trade_amount
+                    self.total_transaction_cost += self.transaction_cost * self.each_trade_amount
                     self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
                     trade_closed = True
+                    self.trade_holding_times.append(timestamp - self.last_trade_open_time)
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
@@ -79,16 +83,16 @@ class Engine():
             if signal == -1:
                 if(self.status == 0):
                     self.assets = -self.each_trade_amount / price
-                    trade_pnl -= self.transaction_cost * self.each_trade_amount
-                    self.total_transaction_cost += self.transaction_cost * self.each_trade_amount
+                    self.last_trade_open_time = timestamp
                 elif(self.status == 1):
                     trade_pnl = self.assets * price - self.each_trade_amount
-                    trade_pnl -= abs(self.transaction_cost * self.assets * price)
-                    self.total_transaction_cost += abs(self.transaction_cost * self.assets * price)
+                    trade_pnl -= self.transaction_cost * self.each_trade_amount
+                    self.total_transaction_cost += self.transaction_cost * self.each_trade_amount
                     self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
                     trade_closed = True
+                    self.trade_holding_times.append(timestamp - self.last_trade_open_time)
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
@@ -104,11 +108,10 @@ class Engine():
                 self.winning_trades_lst.append(trade_pnl)
                 self.num_win_trades += 1
             elif trade_pnl < 0:
-                if trade_closed:
-                    self.gross_loss += trade_pnl
-                    self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
-                    self.losing_trades_lst.append(trade_pnl)
-                    self.num_lose_trades += 1
+                self.gross_loss += trade_pnl
+                self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
+                self.losing_trades_lst.append(trade_pnl)
+                self.num_lose_trades += 1
 
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
             if self.gen_vis_logs:
@@ -119,48 +122,49 @@ class Engine():
         trade_closed = False
         if self.assets > 0:
             trade_pnl = self.assets * close - self.each_trade_amount
-            trade_pnl -= abs(self.transaction_cost * self.assets * close)
-            self.total_transaction_cost += abs(self.transaction_cost * self.assets * close)
+            trade_pnl -= self.transaction_cost * self.each_trade_amount
+            self.total_transaction_cost += self.transaction_cost * self.each_trade_amount
             self.net_pnl += trade_pnl
             self.assets = 0
             self.trade_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
-            trade_closed = True
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
+            trade_closed = True
+            self.trade_holding_times.append(timestamp - self.last_trade_open_time)
             if trade_pnl > 0:
                 self.gross_profit += trade_pnl
                 self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
                 self.winning_trades_lst.append(trade_pnl)
                 self.num_win_trades += 1
             elif trade_pnl < 0:
-                if trade_closed:
-                    self.gross_loss += trade_pnl
-                    self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
-                    self.losing_trades_lst.append(trade_pnl)
-                    self.num_lose_trades += 1
+                self.gross_loss += trade_pnl
+                self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
+                self.losing_trades_lst.append(trade_pnl)
+                self.num_lose_trades += 1
             
         elif self.assets < 0:
             trade_pnl = self.each_trade_amount + self.assets * close
-            trade_pnl -= abs(self.transaction_cost * self.assets * close)
+            trade_pnl -= self.transaction_cost * self.each_trade_amount
+            self.total_transaction_cost += self.transaction_cost * self.each_trade_amount
             self.net_pnl += trade_pnl
             self.assets = 0
             self.trade_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
-            trade_closed = True
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
+            trade_closed = True
+            self.trade_holding_times.append(timestamp - self.last_trade_open_time)
             if trade_pnl > 0:
                 self.gross_profit += trade_pnl
                 self.largest_winning_trade = max(self.largest_winning_trade, trade_pnl)
                 self.winning_trades_lst.append(trade_pnl)
                 self.num_win_trades += 1
             elif trade_pnl < 0:
-                if trade_closed:
-                    self.gross_loss += trade_pnl
-                    self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
-                    self.losing_trades_lst.append(trade_pnl)
-                    self.num_lose_trades += 1
+                self.gross_loss += trade_pnl
+                self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
+                self.losing_trades_lst.append(trade_pnl)
+                self.num_lose_trades += 1
         if self.gen_vis_logs:
             self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
 
@@ -211,5 +215,7 @@ class Engine():
         self.net_portfolio_lst = np.array(self.net_pnl_lst) + self.each_trade_amount
         self.metrics["Maximum Drawdown"] = np.max((1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst)))*100
         self.metrics["Total Transaction Cost"] = self.total_transaction_cost
+        self.metrics["Average Trade Holding Duration"] = np.mean([self.trade_holding_times])
         print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
+
         return self.metrics
