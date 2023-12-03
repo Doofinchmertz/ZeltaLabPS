@@ -3,20 +3,29 @@ import pandas as pd
 import sys
 import argparse
 
+tstomin = {
+    '3m': 3,
+    '5m': 5,
+    '15m': 15,
+    '30m': 30,
+    '1h': 60,
+}
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--logs", help="path to logs file", required=True)
-    parser.add_argument('--gen_vis_logs', action='store_true', help='Generate visual logs')
     parser.add_argument('--wtc', action='store_true', help='without transaction cost')
+    parser.add_argument('--ts', help='tick size eg. 3m/5m/15m/30m/1h', required=True)
     args = parser.parse_args()
-    
-    e = Engine(log_name = args.logs, without_transaction_cost=args.wtc)
+
+    e = Engine(log_name = args.logs, tick_sz=tstomin[args.ts],  without_transaction_cost=args.wtc)
     df = pd.read_csv(args.logs)
     e.add_logs(df)
     e.run()
     metrics = e.get_metrics()
     print(f"Net PnL {metrics['Net PnL']}")
+    print(f"Buy and Hold PnL {metrics['Buy and Hold PnL']}")
     print(f"Total Trades Closed {metrics['Total Trades Closed']}")
     print(f"Gross Profit {metrics['Gross Profit']}")
     print(f"Gross Loss {metrics['Gross Loss']}")
