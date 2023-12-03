@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 class Engine():
-    def __init__(self, log_name = None, static_trade_amount = 1000, gen_vis_logs = False, without_transaction_cost = False) -> None:
+    def __init__(self, log_name = None, static_trade_amount = 1000, without_transaction_cost = False, tick_sz = 5) -> None:
         self.logs = None
         self.each_trade_amount = static_trade_amount
         self.status = 0
@@ -23,8 +23,6 @@ class Engine():
         self.losing_trades_lst = []
         self.num_win_trades = 0
         self.num_lose_trades = 0
-        self.metrics_logs = pd.DataFrame(columns=['Trade PnL', 'Net PnL'])
-        self.gen_vis_logs = gen_vis_logs
         self.assets = 0
         self.open_price_lst = []
         self.close_price_lst = []
@@ -36,7 +34,7 @@ class Engine():
         self.trade_holding_times = []
         self.immediate_losses = 0
         self.immediate_profits = 0
-        self.min_time_diff = pd.Timedelta(minutes=5)
+        self.min_time_diff = pd.Timedelta(minutes=tick_sz)
         self.log_name = log_name
 
     def add_logs(self, logs: pd.DataFrame) -> None:
@@ -83,10 +81,10 @@ class Engine():
                     trade_closed = True
                     self.trade_holding_times.append(timestamp - self.last_trade_open_time)
                     if timestamp - self.last_trade_open_time == self.min_time_diff:
-                        if trade_pnl + self.transaction_cost * self.each_trade_amount > 0:
-                            self.immediate_profits += trade_pnl + self.transaction_cost * self.each_trade_amount
+                        if trade_pnl > 0:
+                            self.immediate_profits += trade_pnl 
                         else:
-                            self.immediate_losses += trade_pnl + self.transaction_cost * self.each_trade_amount
+                            self.immediate_losses += trade_pnl 
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
@@ -105,10 +103,10 @@ class Engine():
                     trade_closed = True
                     self.trade_holding_times.append(timestamp - self.last_trade_open_time)
                     if timestamp - self.last_trade_open_time == self.min_time_diff:
-                        if trade_pnl + self.transaction_cost * self.each_trade_amount > 0:
-                            self.immediate_profits += trade_pnl + self.transaction_cost * self.each_trade_amount
+                        if trade_pnl > 0:
+                            self.immediate_profits += trade_pnl
                         else:
-                            self.immediate_losses += trade_pnl + self.transaction_cost * self.each_trade_amount
+                            self.immediate_losses += trade_pnl
                 else:
                     print(f"Invalid trade signal at {timestamp}")
                     continue
@@ -130,11 +128,10 @@ class Engine():
                 self.num_lose_trades += 1
 
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
-            if self.gen_vis_logs:
-                self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
 
             if(signal != 0):
                 print(f"Trade at {timestamp} with price {price} and signal {signal}, total assets : {self.assets}, trade_pnl : {trade_pnl}, net_pnl : {self.net_pnl}")
+
         trade_closed = False
         if self.assets > 0:
             trade_pnl = self.assets * close - self.each_trade_amount
@@ -181,22 +178,20 @@ class Engine():
                 self.largest_losing_trade = min(self.largest_losing_trade, trade_pnl)
                 self.losing_trades_lst.append(trade_pnl)
                 self.num_lose_trades += 1
-        if self.gen_vis_logs:
-            self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
 
     def plot(self) -> None:
         fig, ax = plt.subplots()
-        ax.plot(self.net_pnl_lst[:-1], label='Net PnL')
+        ax.plot(self.net_pnl_lst, label='Net PnL', color='blue')
         ax.axhline(y=0, color='black', linestyle='--')
-        ax.set_title("Net PnL and Open Price")
+        ax.set_title("Net PnL and Close Price")
         
         ax.set_xlabel("Time")
         ax.set_ylabel("Net PnL")
         
         ax2 = ax.twinx()
-        ax2.plot(self.close_price_lst, label='Open Price', color='orange')
+        ax2.plot(self.close_price_lst , label='Close Price', color='orange')
         ax2.axhline(y=0, color='black', linestyle='--')
-        ax2.set_ylabel("Open Price")
+        ax2.set_ylabel("Close Price")
         
         # Set xtick values using self.logs['datetime']
         len = self.logs.shape[0] - 1
@@ -212,20 +207,8 @@ class Engine():
         plt.show()
 
     def get_metrics(self) -> dict:
-        if self.gen_vis_logs:
-            if not os.path.exists("metric_logs"):
-                os.makedirs("metric_logs")
-            self.metrics_logs.to_csv("metric_logs/static_metric_logs.csv")
-
-        # file_path = "plotting_data.csv"
-        # if os.path.exists(file_path):
-        #     plotting_data = pd.read_csv(file_path)
-        #     plotting_data['datetime'] = pd.to_datetime(plotting_data['datetime'])
-        #     plotting_data.set_index('datetime', inplace=True)
-        #     plotting_data[self.log_name] = pd.Series(self.net_pnl_lst).values
-        #     plotting_data.to_csv(file_path, index=True)
-
         self.metrics["Net PnL"] = self.net_pnl
+        self.metrics["Buy and Hold PnL"] = (self.close_price_lst[-1] - self.close_price_lst[0]) * self.each_trade_amount / self.close_price_lst[0]
         self.metrics["Gross Profit"] = self.gross_profit
         self.metrics["Gross Loss"] = self.gross_loss
         self.metrics["Total Trades Closed"] = self.total_trades_closed
