@@ -24,6 +24,7 @@ if __name__ == "__main__":
     e.add_logs(df)
     e.run()
     metrics = e.get_metrics()
+    print(metrics['Net PnL'])
     print(f"Net PnL {metrics['Net PnL']}")
     print(f"Buy and Hold PnL {metrics['Buy and Hold PnL']}")
     print(f"Total Trades Closed {metrics['Total Trades Closed']}")

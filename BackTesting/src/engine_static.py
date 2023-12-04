@@ -52,7 +52,6 @@ class Engine():
             self.open_price_lst.append(open)
             self.close_price_lst.append(close)
 
-
             if (signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
