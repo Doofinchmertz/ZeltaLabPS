@@ -40,6 +40,7 @@ if __name__ == "__main__":
     print(f"Number of Losing Trades {metrics['Number of Losing Trades']}")
     print(f"Max Drawdown {metrics['Maximum Drawdown']}")
     print(f"Total Transaction Cost {metrics['Total Transaction Cost']}")
+    print(f"Maximum Trade Holding Duration {metrics['Maximum Trade Holding Duration']}")
     print(f"Average Trade Holding Duration {metrics['Average Trade Holding Duration']}")
     print(f"Immediate Losses {metrics['Immediate Losses']}" )
     print(f"Immediate Profits {metrics['Immediate Profits']}" )
