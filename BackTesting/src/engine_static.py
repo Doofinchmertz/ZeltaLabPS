@@ -116,7 +116,6 @@ class Engine():
             self.status += signal
             if trade_closed:
                 self.trade_pnl_lst.append(trade_pnl)
-                print(row.Index, row.datetime, trade_pnl)
                 self.logs.loc[row.Index, 'trade_pnl'] = trade_pnl
             if trade_pnl > 0:
                 self.gross_profit += trade_pnl
