@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import sys
 
 def read_file(filename):
     return pd.read_csv(filename, index_col=0, parse_dates=True, infer_datetime_format=True)
@@ -11,14 +12,23 @@ def get_data(timeframe, name):
     return read_file("data_with_indicators/btcusdt_" + timeframe + "_" + name + ".csv")
 
 # Tick Size of Data
-time_frame = "5m"
+time_frame = sys.argv[1]
 # Load data
 df_train = get_data(time_frame, 'train')
 df_val = get_data(time_frame, 'val')
 scaler = StandardScaler()
 scaler.fit(df_train.values)
-df_train = pd.DataFrame(scaler.transform(df_train.values), index=df_train.index, columns=df_train.columns)
-df_val = pd.DataFrame(scaler.transform(df_val.values), index=df_val.index, columns=df_val.columns)
+df_train_norm = pd.DataFrame(scaler.transform(df_train.values), index=df_train.index, columns=df_train.columns)
+df_val_norm = pd.DataFrame(scaler.transform(df_val.values), index=df_val.index, columns=df_val.columns)
+df_train_norm.rename(columns={"open": "open_norm"}, inplace=True)
+df_train_norm.rename(columns={"close": "close_norm"}, inplace=True)
+df_val_norm.rename(columns={"open": "open_norm"}, inplace=True)
+df_val_norm.rename(columns={"close": "close_norm"}, inplace=True)
+df_train_norm['open'] = df_train['open']
+df_train_norm['close'] = df_train['close']
+df_val_norm['open'] = df_val['open']
+df_val_norm['close'] = df_val['close']
 
-df_train.to_csv("data_with_indicators/btcusdt_" + time_frame + "_train_norm.csv", index=True)
-df_val.to_csv("data_with_indicators/btcusdt_" + time_frame + "_val_norm.csv", index=True)
+
+df_train_norm.to_csv("data_with_indicators/btcusdt_" + time_frame + "_train_norm.csv", index=True)
+df_val_norm.to_csv("data_with_indicators/btcusdt_" + time_frame + "_val_norm.csv", index=True)

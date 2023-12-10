@@ -1,4 +1,4 @@
-from sklearn.linear_model import LinearRegression, Lasso
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 import pandas as pd
 import sys
 import numpy as np
@@ -14,21 +14,20 @@ def get_data(timeframe, name):
 # Tick Size of Data
 time_frame = sys.argv[1]
 # Load data
-df_train = get_data(time_frame, "train")
-df_val = get_data(time_frame, "val")
-
-# df_train, df_val = train_test_split(df_, test_size=0.2, shuffle=False)
+df_train = get_data(time_frame, "total")
+df_val = get_data(time_frame, "gold")
 
 # Create the linear regression model
-model = LinearRegression()
+model = Ridge(alpha=10)
 
 
 # Define the independent variables
 X_train = df_train.drop(f'Next_{k}_Days_Return', axis=1)
 X_train = X_train.drop('open', axis=1)
+X_train = X_train.drop('close', axis=1)
 X_val = df_val.drop(f'Next_{k}_Days_Return', axis=1)
 X_val = X_val.drop('open', axis=1)
-
+X_val = X_val.drop('close', axis=1)
 
 # Define the dependent variable
 y_train = df_train[f'Next_{k}_Days_Return']
@@ -47,9 +46,10 @@ print("model_coef", model.coef_)
 
 # Predict the dependent variable of the training data
 y_pred = model.predict(X_train)
-quantile_value = np.quantile(np.abs(y_pred), 0.99)
-print("quantile value: ", quantile_value)
+# quantile_value = np.quantile(np.abs(y_pred), 0.99)
+# print("quantile value: ", quantile_value)
 print(np.corrcoef(y_pred, y_train)[0,1])
+quantile_value = 1.5
 
 df_train['indicator'] = np.where(y_pred > quantile_value, 1, np.where(y_pred < -quantile_value, -1, 0))
 data = df_train
@@ -66,15 +66,7 @@ for index, _ in data.iterrows():
             # enter short position/exit long position
             tot -= 1
             data.at[index, 'signal'] = -1
-    else:
-        if tot == 1:
-            # exit long position
-            data.at[index, 'signal'] = -1
-        elif tot == -1:
-            # exit short position
-            data.at[index, 'signal'] = 1
-        tot = 0
-data.to_csv("../src/logs/lin_reg_train_" + time_frame + ".csv")
+data.to_csv("../src/logs/lin_reg_total_" + time_frame + ".csv")
 
 # Predict the dependent variable of the validation data
 y_pred = model.predict(X_val)
@@ -95,12 +87,4 @@ for index, _ in data.iterrows():
             # enter short position/exit long position
             tot -= 1
             data.at[index, 'signal'] = -1
-    else:
-        if tot == 1:
-            # exit long position
-            data.at[index, 'signal'] = -1
-        elif tot == -1:
-            # exit short position
-            data.at[index, 'signal'] = 1
-        tot = 0
-data.to_csv("../src/logs/lin_reg_val_" + time_frame + ".csv")
+data.to_csv("../src/logs/lin_reg_gold_" + time_frame + ".csv")

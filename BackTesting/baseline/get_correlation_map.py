@@ -13,7 +13,7 @@ def get_data(timeframe, name):
     return read_file("data_with_indicators/btcusdt_" + timeframe + "_" + name + ".csv")
 
 # Tick Size of Data
-time_frame = "5m"
+time_frame = "1h"
 # Load data
 df = get_data(time_frame, name)
 df.head()

@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import sys
 import talib
+from sklearn.preprocessing import StandardScaler
 
 def calculate_rsi(data, window=14):
     # Calculate daily price changes
@@ -27,7 +28,9 @@ def calculate_rsi(data, window=14):
 
 
 k = sys.argv[2]
-k = int(k) # "train", "total", "val"
+k = int(k)
+
+time_frame = sys.argv[1]
 
 def read_file(filename):
     return pd.read_csv(filename, index_col=0, parse_dates=True, infer_datetime_format=True)
@@ -35,8 +38,6 @@ def read_file(filename):
 def get_data(timeframe, name):
     return read_file("../data/btcusdt_" + timeframe + "_" + name + ".csv")
 
-# Tick Size of Data
-time_frame = sys.argv[1]
 
 for name in ["train", "total", "val"]:
     # Load data
@@ -50,39 +51,6 @@ for name in ["train", "total", "val"]:
 
     df[f'Next_{k}_Days_Return'] = df['close'].pct_change(k).shift(-k)*1000
 
-    # CCI
-    df['CCI'] = talib.CCI(df['high'], df['low'], df['close'], timeperiod=48)
-
-    # MACD
-    short_window = 12
-    long_window = 26
-    signal_window = 18
-    df['macd'], df['signal'], _ = talib.MACD(df["close"], fastperiod=short_window, slowperiod=long_window, signalperiod=signal_window) 
-    shifted_signal = df['signal'].shift(1)
-    shifted_signal.fillna(0, inplace=True)
-    df['macd'].fillna(0, inplace=True)
-    df['macd_signal'] = df['macd'] - shifted_signal  
-
-    # ROC (Previous n day return)
-    n = 5
-    df['ROC'] = df['close'].pct_change(n) * 100
-
-    # OBV
-    df['OBV'] = talib.OBV(df['close'], df['volume'])
-
-    # O-C
-    df['o_c'] = df['open'] - df['close']
-
-    # (O-C)*V
-    df['o_c*v'] = df['o_c']*df['volume']
-
-    # H-L
-    df['h_l'] = df['high'] - df['low']
-
-    df[f'EMA_5'] = talib.EMA(df['close'], timeperiod=5)
-
-    df['Alpha_8'] = 0.386/df['low'] + df['low']/df['close'] 
-    df['Will_R'] = talib.WILLR(df.high,df.low,df.close,timeperiod=5)
 
     # Adding exp_RSI
     df['RSI'] = talib.RSI(df['close'], timeperiod=140)
@@ -96,12 +64,44 @@ for name in ["train", "total", "val"]:
     df['exp_RSI'] = np.exp(np.abs(df['RSI']))
     df['exp_RSI'] = np.where(df['RSI'] > 0, -df['exp_RSI'], df['exp_RSI'])
 
-    # FIND SLOPE OF EMA
+    # Scale exp_RSI
+    scaler = StandardScaler()
+    df['exp_RSI'] = scaler.fit_transform(df['exp_RSI'].values.reshape(-1,1))
+
+
+
+    # Adding EMA slope
     df['EMA'] = talib.EMA(df['close'], timeperiod=2)
+
+
+    # FIND SLOPE OF EMA
     df['EMA_Slope'] = -df['EMA'].pct_change(1)*100
-    
-    # Drop rows with any Nan value
+    df1 = df[(df['EMA_Slope'] > 0)]
+    df.fillna(0, inplace=True)
+
+    # Scale Slope
+    scaler = StandardScaler()
+    df['EMA_Slope'] = scaler.fit_transform(df['EMA_Slope'].values.reshape(-1, 1))
+
+
+    # Adding change in MACD
+    fast = 12
+    slow = 26
+    signal = 18
+    macd, signal, _ = talib.MACD(df["close"], fastperiod=fast, slowperiod=slow, signalperiod=signal)
+    df['macd'] = macd
+    df['signal'] = signal
+
+    shifted_signal = df['signal'].shift(1)
+    shifted_signal.fillna(0, inplace=True)
+    df['macd'].fillna(0, inplace=True)
+
+    df['macd_signal'] = df['signal'] - shifted_signal
+
+    # Drop columns macd, signal, EMA, high, low
     df = df.drop(['macd', 'signal', 'EMA', 'high', 'low'], axis=1)
+
+    # Drop rows with any Nan value
     df = df.dropna()
 
     # Get the final df with indicators to junk.csv
