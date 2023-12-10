@@ -44,6 +44,7 @@ class Engine():
         self.close_price_lst = self.logs['close'].tolist()
         self.open_price_lst = self.logs['open'].tolist()
         self.logs['trade_pnl'] = 0
+        self.logs['trade_pnl'] = self.logs['trade_pnl'].astype('float64')
         df = self.logs[self.logs['signal'] != 0]
         for row in df.itertuples():
             signal = int(row.signal)
