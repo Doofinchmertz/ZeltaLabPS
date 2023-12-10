@@ -14,7 +14,7 @@ scaler = StandardScaler()
 X_normalized = scaler.fit_transform(X)
 X = pd.DataFrame(X_normalized, columns=X.columns)
 y = pd.DataFrame(y, columns=y.columns)
-target_k = 4
+target_k = 1
 
 def run_script(look_back, pred_window, alpha, lock):
     try:
@@ -46,8 +46,9 @@ def run_script(look_back, pred_window, alpha, lock):
         percentage_actual_greater = (count_actual_greater / total_samples) * 100
         percentage_actual_less = (count_actual_less / total_samples) * 100
 
-        metric = ((percentage_greater + percentage_less)*(percentage_greater + percentage_less))/((percentage_actual_greater + percentage_actual_less)*(percentage_pred_greater + percentage_pred_less))
-        metric = math.sqrt(metric)
+        # metric = ((percentage_greater + percentage_less)*(percentage_greater + percentage_less))/((percentage_actual_greater + percentage_actual_less)*(percentage_pred_greater + percentage_pred_less))
+        # metric = math.sqrt(metric)
+        metric = (percentage_greater + percentage_less) / (percentage_pred_greater + percentage_pred_less)
         with lock:
             global best_metric, best_look_back, best_pred_window, best_alpha
             if metric > best_metric:
@@ -75,7 +76,7 @@ lb_step = 96
 pred_step = 24
 for look_back in range(lb_step, lb_step*50, lb_step):
     for pred_window in range(pred_step, look_back//2, pred_step):
-        for alpha in [0.001, 0.01, 0.1, 1, 10, 100, 1000]:
+        for alpha in [1, 5, 10, 50, 100, 500, 1000]:
             semaphore.acquire()
             thread = threading.Thread(target=run_script, args=(look_back, pred_window, alpha, lock))
             thread.start()
