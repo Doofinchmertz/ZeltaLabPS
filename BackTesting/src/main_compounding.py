@@ -7,10 +7,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--logs", help = "path to logs file", required = True)    
-    parser.add_argument('--gen_vis_logs', action='store_true', help='Generate visual logs')
     args = parser.parse_args()
 
-    e = Engine(gen_vis_logs=args.gen_vis_logs)
+    e = Engine()
     df = pd.read_csv(args.logs)
     e.add_logs(df)
     e.run()
@@ -28,4 +27,5 @@ if __name__ == "__main__":
     print(f"Number of Winning Trades {metrics['Number of Winning Trades']}")
     print(f"Number of Losing Trades {metrics['Number of Losing Trades']}")
     print(f"Final Cash {metrics['Final Cash']}")
+    print(f"Total Transaction Cost {metrics['Total Transaction cost']}")
     e.plot()

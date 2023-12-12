@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 class Engine():
-    def __init__(self, initial_cash = 1000, gen_vis_logs = False) -> None:
+    def __init__(self, initial_cash = 1000) -> None:
         self.logs = None
         self.initial_cash = initial_cash
         self.cash = self.initial_cash
@@ -25,9 +25,11 @@ class Engine():
         self.num_win_trades = 0
         self.num_lose_trades = 0
         self.metrics_logs = pd.DataFrame(columns=['Trade PnL', 'Net PnL'])
-        self.gen_vis_logs = gen_vis_logs
         self.last_bough_amt = 0
         self.last_sold_amt = 0
+        self.transaction_cost = 0.0015
+        self.total_transaction_cost = 0
+
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
@@ -61,6 +63,8 @@ class Engine():
                     self.cash = 0
                 elif(self.status == -1):
                     trade_pnl = self.last_sold_amt + self.assets * price
+                    trade_pnl -= self.transaction_cost*self.last_sold_amt
+                    self.total_transaction_cost += self.transaction_cost*self.last_sold_amt
                     self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
@@ -76,6 +80,8 @@ class Engine():
                     self.cash += self.cash
                 elif(self.status == 1):
                     trade_pnl = self.assets * price - self.last_bough_amt
+                    trade_pnl -= self.transaction_cost * self.last_bough_amt
+                    self.total_transaction_cost += self.transaction_cost * self.last_bough_amt
                     self.net_pnl += trade_pnl
                     self.assets = 0
                     self.total_trades_closed += 1
@@ -101,8 +107,6 @@ class Engine():
                 self.num_lose_trades += 1
 
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
-            if self.gen_vis_logs:
-                self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
 
             if(signal != 0):
                 print(f"Trade at {timestamp} with price {price} and signal {signal}, total assets : {self.assets}, trade_pnl : {trade_pnl}, net_pnl : {self.net_pnl}, net_cash : {self.cash}")
@@ -147,9 +151,6 @@ class Engine():
                 self.num_lose_trades += 1
             self.cash += trade_pnl
 
-        if self.gen_vis_logs:
-            self.metrics_logs = pd.concat([self.metrics_logs,pd.DataFrame({'Trade PnL': [trade_pnl], 'Net PnL': [self.net_pnl]})], ignore_index=True)
-
     def plot(self)-> None:
         plt.plot(self.net_pnl_lst)
         plt.axhline(y=0, color='black', linestyle='--') # add this line to draw x-axis at y=0
@@ -159,10 +160,6 @@ class Engine():
         plt.show()
 
     def get_metrics(self) -> dict:
-        if self.gen_vis_logs:
-            if not os.path.exists("metric_logs"):
-                os.makedirs("metric_logs")
-            self.metrics_logs.to_csv("metric_logs/static_metric_logs.csv")
         self.metrics["Net PnL"] = self.net_pnl
         self.metrics["Gross Profit"] = self.gross_profit
         self.metrics["Gross Loss"] = self.gross_loss
@@ -176,4 +173,5 @@ class Engine():
         self.metrics["Number of Winning Trades"] = self.num_win_trades
         self.metrics["Number of Losing Trades"] = self.num_lose_trades
         self.metrics["Final Cash"] = self.cash
+        self.metrics["Total Transaction cost"] = self.total_transaction_cost
         return self.metrics
