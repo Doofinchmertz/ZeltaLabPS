@@ -19,7 +19,7 @@
 - Super Trend Indicator: Super Trend Indicator identifies trend direction and potential reversal points.
 - Heikin-Ashi: Heikin-Ashi smooths price data for candlestick patterns, making it easier to identify trend reversals.
 - Moving Average Ribbon: The Moving Average Ribbon displays multiple moving averages to help traders confirm trends.
-- Momentum Oscillators:
+## Momentum Oscillators:
 - Relative Strength Index (RSI): RSI measures overbought or oversold conditions, aiding traders in timing entries and exits.
 - Stochastic Oscillator: Stochastic Oscillator identifies potential reversal points, helping traders spot trend changes.
 - Rate of Change (ROC): ROC calculates price change percentage, assisting traders in assessing momentum.
@@ -35,7 +35,7 @@
 - Klinger Oscillator: The Klinger Oscillator combines volume and price data to provide momentum insights.
 - Chande's Momentum Oscillator: Chande's Momentum Oscillator helps traders identify trend strength and potential reversals.
 - Schaff Trend Cycle: Schaff Trend Cycle smooths and signals trends, aiding traders in trend analysis.
-- Volatility Indicators:
+## Volatility Indicators:
 - Bollinger Bands: Bollinger Bands measure price volatility, helping traders identify potential breakout or reversal points.
 - Average True Range (ATR): ATR gauges market volatility, assisting traders in setting stop-loss levels.
 - Standard Deviation: Standard Deviation quantifies price variability, aiding traders in assessing market stability.
@@ -45,7 +45,7 @@
 - Volatility Squeeze: Volatility Squeeze indicates potential price breakout when market volatility decreases.
 - Volatility Ratio: Volatility Ratio measures current volatility levels, assisting traders in assessing market conditions.
 - Volatility Quality Index (VQI): VQI evaluates market noise, aiding traders in filtering out irrelevant price movements.
-- Volume Indicators:
+## Volume Indicators:
 - On-Balance Volume (OBV): OBV combines volume and price data to identify the strength of a price trend. It adds volume on up days and subtracts it on down days.
 - Chaikin Money Flow (CMF): CMF measures buying and selling pressure based on both price and volume. It provides insights into the flow of money in the market.
 - Accumulation/Distribution Line (A/D): A/D evaluates money flow in and out of a security, helping traders assess market sentiment. It's a cumulative indicator that considers volume changes.
@@ -56,7 +56,7 @@
 - Negative Volume Index (NVI): NVI measures price changes on days with decreasing volume. It's designed to highlight the significance of down days with low volume.
 - Positive Volume Index (PVI): PVI measures price changes on days with increasing volume. It emphasizes the importance of up days with high volume.
 - Price and Volume Trend (PVT): PVT combines price and volume to provide insights into the relationship between price movements and trading activity.
-- Pattern Recognition:
+## Pattern Recognition:
 - Head and Shoulders: The Head and Shoulders pattern is a reversal pattern that indicates a potential change in the current trend. It consists of three peaks, with the middle one being the highest (the head).
 - Double Top and Double Bottom: These patterns signal potential trend reversals. Double Top forms after an uptrend and Double Bottom after a downtrend.
 - Cup and Handle: The Cup and Handle pattern is a continuation pattern that suggests a brief consolidation before the prevailing trend resumes.
@@ -71,13 +71,13 @@
 - Morning Star and Evening Star: These candlestick patterns indicate potential trend reversals and are composed of three candles.
 - Shooting Star and Inverted Hammer: These candlestick patterns occur at the end of uptrends and downtrends, respectively, and can signal reversals.
 - Hammer and Hanging Man: Hammer and Hanging Man are single-candlestick patterns that suggest potential trend reversals.
-- Fibonacci-Based Indicators:
+## Fibonacci-Based Indicators:
 - Fibonacci Retracement Levels: Fibonacci Retracement is a technical analysis tool that uses horizontal lines to indicate potential support and resistance levels. It's based on key Fibonacci ratios (e.g., 38.2%, 50%, 61.8%) derived from the Fibonacci sequence.
 - Fibonacci Extensions: Fibonacci Extensions are used to identify potential price targets beyond the initial price movement. They are based on Fibonacci ratios (e.g., 161.8%, 261.8%) and help traders set profit targets.
 - Fibonacci Fans: Fibonacci Fans consist of diagonal lines drawn from a significant price point to indicate potential support and resistance levels. They are based on Fibonacci ratios and angles.
 - Fibonacci Arcs: Fibonacci Arcs are drawn using three curves that intersect a horizontal line at key Fibonacci levels. They help identify potential reversal or continuation points in the price trend.
 - Fibonacci Time Zones: Fibonacci Time Zones use vertical lines to highlight potential time-based reversal or continuation points in the price trend. They are based on Fibonacci time ratios.
-- Candlestick Patterns:
+## Candlestick Patterns:
 - Doji: A Doji is a single-candlestick pattern that signifies indecision in the market. It has an opening and closing price very close to each other, resulting in a small or non-existent body.
 - Marubozu: Marubozu candles have long bodies with no or very small shadows. A bullish Marubozu indicates strong buying, while a bearish Marubozu indicates strong selling.
 - Spinning Top: The Spinning Top is a candlestick with a small body and long upper and lower shadows. It suggests market indecision and potential reversals.
@@ -92,31 +92,31 @@
 - Kicker Pattern: The Kicker Pattern is a two-candlestick pattern that signals a sudden and strong reversal in the prevailing trend.
 - Bullish and Bearish Belt Hold Lines: These single-candlestick patterns are often seen at trend reversal points.
 - Three Inside Up and Three Inside Down: These patterns are formed by three consecutive candles and suggest potential trend reversals.
-- Pivot Points:
+## Pivot Points:
 - Standard Pivot Points: Standard Pivot Points are a set of technical indicators used to identify potential support and resistance levels in a trading day. They are calculated using the previous day's high, low, and closing prices and help traders gauge potential price reversal or continuation points.
 - Fibonacci Pivot Points: Fibonacci Pivot Points are similar to Standard Pivot Points but incorporate Fibonacci ratios (e.g., 38.2%, 61.8%) in their calculation. They are used to identify key price levels for potential reversals or breakouts.
 - Camarilla Pivot Points: Camarilla Pivot Points are a variation of pivot points that emphasize short-term trading. They provide support and resistance levels based on the previous day's high, low, and close, with additional levels calculated using specific formulas.
 - Woodie's Pivot Points: Woodie's Pivot Points, also known as Woodie's Pivots, use a different formula than standard pivot points. They are calculated using the previous day's open, high, low, and close prices and are popular among futures traders.
 - DeMark's Pivot Points: DeMark's Pivot Points, developed by trader Tom DeMark, use different rules for calculating pivot levels. They aim to identify potential exhaustion points in price trends and are used in trend analysis.
-- Elliott Wave Theory:
+## Elliott Wave Theory:
 - Elliott Wave Oscillator: The Elliott Wave Oscillator is a technical indicator used in Elliott Wave Theory. It helps traders identify the Elliott Wave count by displaying the difference between a 5-period and a 35-period simple moving average.
 - Elliott Wave Zigzag, Flat, Triangle: These are specific Elliott Wave patterns.
 - Zigzag: A Zigzag is a corrective wave pattern characterized by three waves (A-B-C) and is used to describe countertrend price movements.
 - Flat: A Flat is another corrective pattern that consists of three waves (A-B-C) and represents a sideways correction within an overall trend.
 - Triangle: Triangles are continuation patterns found within Elliott Wave Theory. They involve five waves and indicate a consolidation phase before the trend resumes.
-- Breadth Indicators:
+## Breadth Indicators:
 - Advance-Decline Line: The Advance-Decline Line is a breadth indicator that tracks the number of advancing and declining stocks in a stock market index. It helps gauge overall market strength or weakness.
 - Advance-Decline Ratio (ADR): The Advance-Decline Ratio is calculated by dividing the number of advancing stocks by the number of declining stocks. It provides a ratio that can be used to assess market breadth.
 - McClellan Oscillator: The McClellan Oscillator is a breadth indicator based on the difference between the 19-day exponential moving average (EMA) and the 39-day EMA of advancing and declining issues on a stock exchange. It helps identify overbought or oversold conditions.
 - Arms Index (TRIN): The Arms Index, also known as the TRIN (Short-Term Trading Index), is a breadth indicator used to assess market sentiment. It is calculated using the ratio of advancing issues to declining issues and the ratio of advancing volume to declining volume.
 - McClellan Summation Index: The McClellan Summation Index is a cumulative breadth indicator derived from the McClellan Oscillator. It provides a longer-term perspective on market breadth and helps identify trends in market strength or weakness.
 - New Highs-New Lows Index: The New Highs-New Lows Index tracks the number of stocks making new highs and new lows on a stock exchange. It helps assess the breadth of a market rally or decline.
-- Price Oscillators:
+## Price Oscillators:
 - Price Oscillator (PPO): The Price Oscillator, or PPO, is a technical indicator that measures the percentage difference between two moving averages of a security's price. It is used to identify potential trend reversals and can help traders assess the momentum of a security.
 - Price Rate of Change (PROC): The Price Rate of Change is a simple indicator that measures the percentage change in a security's price over a specified period. It helps traders gauge the magnitude of price movements and identify potential turning points.
 - Percentage Price Oscillator (PPO): The Percentage Price Oscillator is similar to the PPO but is expressed as a percentage. It measures the percentage difference between two moving averages and can be used to analyze price trends and momentum.
 - Percentage Price Rate of Change (PPROC): The Percentage Price Rate of Change is a variation of the Price Rate of Change, expressed as a percentage. It quantifies the price change over a specific period as a percentage of the starting price.
-- Mathematical Indicators:
+## Mathematical Indicators:
 - Standard Deviation: Standard Deviation is a statistical measure that quantifies the degree of variation or dispersion of a set of data points from the mean (average). In trading, it is often used to assess price volatility.
 - Variance: Variance is another statistical measure that calculates the average of the squared differences from the mean. It provides insights into the spread of data points and is related to standard deviation.
 - Z-Score: The Z-Score is a statistical score that measures how far a data point is from the mean in terms of standard deviations. In trading, it can be used to identify extreme price movements.
@@ -127,7 +127,7 @@
 - Time Series Forecast (TSF): Time Series Forecast is a technical indicator that attempts to predict future price movements based on historical data. It uses regression analysis to generate forecasts.
 - Price Time Bands: Price Time Bands are technical analysis tools that combine price and time to identify potential reversal or continuation points in a market. They are often used in conjunction with other indicators.
 - Fibonacci Time Zones: Fibonacci Time Zones are a set of vertical lines drawn on a price chart at specific Fibonacci ratios (e.g., 1.618, 2.618). They are used to identify potential time-based support and resistance levels.
-- Oscillators:
+## Oscillators:
 - Aroon Oscillator: The Aroon Oscillator is a technical indicator used to measure the strength of a trend and the likelihood of a trend reversal. It consists of two lines (Aroon-Up and Aroon-Down) and an oscillator line.
 - Awesome Oscillator: The Awesome Oscillator is a momentum indicator that helps traders identify the strength of a trend. It is based on the difference between a 34-period and a 5-period simple moving average.
 - Detrended Oscillator (DPO): The Detrended Oscillator is used to eliminate the trend component from a security's price. It helps identify cycles and potential reversal points.
@@ -139,11 +139,11 @@
 - TRIX (Triple Exponential Average): TRIX is a momentum oscillator that measures the percentage rate of change in a triple-smoothed exponential moving average. It helps identify trends and potential reversals.
 - Ultimate Oscillator: The Ultimate Oscillator is a momentum oscillator that combines short, intermediate, and long-term weighted averages to assess trend strength and potential reversals.
 - Williams Accumulation/Distribution (WAD): The Williams Accumulation/Distribution indicator measures the flow of money into or out of a security. It helps identify potential changes in buying or selling pressure.
-- Chaos Theory Indicators:
+## Chaos Theory Indicators:
 - Chaos Fractals: Chaos Fractals are a part of chaos theory used in technical analysis. They help identify potential turning points or reversals in price movements by highlighting patterns in fractal geometry.
 - Chaos Awesome Oscillator: The Chaos Awesome Oscillator is a variation of the traditional Awesome Oscillator, designed to identify trends and potential trend changes. It assesses the difference between a 5-period simple moving average and a 34-period simple moving average.
 - Chaos Accelerator Oscillator: The Chaos Accelerator Oscillator is used to confirm trends in price movements. It calculates the difference between a 5-period simple moving average and a 34-period simple moving average.
-- Cycle Indicators:
+## Cycle Indicators:
 - Cycle Channel Indicator: The Cycle Channel Indicator is a technical tool used to identify cyclical patterns in price movements. It helps traders spot recurring market cycles.
 - Cycle Lines: Cycle Lines are used to analyze price cycles and potential turning points. They are drawn on a price chart to visualize cyclic patterns.
 - Schaff Trend Cycle: The Schaff Trend Cycle is a momentum oscillator that combines elements of the MACD and Stochastic indicators. It helps traders identify overbought and oversold conditions and potential trend reversals.
@@ -153,14 +153,14 @@
 - Camarilla Pivot Points: Camarilla Pivot Points are another variation of pivot points designed to identify intraday support and resistance levels.
 - Woodie's Pivot Points: Woodie's Pivot Points are a pivot point calculation method that uses the previous day's open, high, low, and close prices to determine support and resistance levels.
 - DeMark's Pivot Points: DeMark's Pivot Points are pivot levels used to identify potential trend reversals. They are based on a specific set of rules and price calculations.
-- Market Strength Indicators:
+## Market Strength Indicators:
 - Arms Index (TRIN): The Arms Index, also known as the TRIN (Short-Term TRading INdex), measures market breadth and helps assess the strength of a market trend. It considers the ratio of advancing issues to declining issues and the ratio of advancing volume to declining volume.
 - Advance-Decline Line: The Advance-Decline Line tracks the cumulative difference between the number of advancing and declining stocks in a market index. It helps gauge market breadth and trend strength.
 - Advance-Decline Ratio (ADR): The Advance-Decline Ratio is calculated by dividing the number of advancing stocks by the number of declining stocks. It provides insights into market sentiment and trend direction.
 - McClellan Oscillator: The McClellan Oscillator is a market breadth indicator that uses exponential moving averages of advancing and declining issues to identify overbought and oversold conditions.
 - McClellan Summation Index: The McClellan Summation Index is a longer-term version of the McClellan Oscillator. It helps traders assess the overall health of a market trend.
 - New Highs-New Lows Index: The New Highs-New Lows Index measures the number of stocks reaching new highs minus the number of stocks reaching new lows. It indicates the strength of market sentiment.
-- Volume Oscillators:
+## Volume Oscillators:
 - Chaikin Oscillator: The Chaikin Oscillator is a momentum indicator that combines price and volume data to assess buying and selling pressure. It helps traders identify potential trend changes.
 - Chaikin Volatility: Chaikin Volatility measures market volatility based on the spread between a security's high and low prices over a specified period. It helps traders gauge market volatility.
 - Ease of Movement (EMV): The Ease of Movement indicator measures the ease with which money flows in and out of a security. It helps assess the strength of buying or selling pressure.
@@ -169,7 +169,7 @@
 - Positive Volume Index (PVI): The Positive Volume Index focuses on days when trading volume increases. It helps identify potential selling opportunities.
 - Price and Volume Trend (PVT): The Price and Volume Trend indicator combines price and volume data to measure the strength of a price trend. It helps traders identify trend confirmations or potential reversals.
 - Volume-Weighted MACD: Volume-Weighted MACD is a variation of the MACD indicator that takes into account trading volume. It helps traders assess momentum and potential trend changes.
-- Momentum-Based Indicators:
+## Momentum-Based Indicators:
 - Chande Forecast Oscillator (CFO): The Chande Forecast Oscillator is used to predict future price movements. It calculates the difference between the closing price and a linear regression forecasted price, helping traders identify overbought and oversold conditions.
 - Chande QStick: Chande QStick measures the difference between the opening and closing prices over a specified period. It helps traders assess price trends and changes in momentum.
 - Chande Trend Meter (CTM): Chande Trend Meter helps traders identify the strength of a trend. It combines multiple technical indicators to determine whether a trend is strong, weak, or ranging.
@@ -181,7 +181,7 @@
 - Price Momentum Oscillator (PMO): The Price Momentum Oscillator measures the momentum of price movements. It combines rate-of-change and moving averages to generate signals.
 - Random Walk Index (RWI): The Random Walk Index assesses whether a security's price moves in a random or trending manner. It helps traders distinguish between random noise and actual trends.
 - Stochastic RSI (StochRSI): Stochastic RSI is a variation of the RSI indicator that applies the stochastic oscillator formula to RSI values. It helps traders identify overbought and oversold conditions.
-- Price-Based Indicators:
+## Price-Based Indicators:
 - Advance-Decline Line (ADL): The Advance-Decline Line tracks the cumulative difference between the number of advancing and declining stocks in a market index. It helps gauge market breadth and trend strength.
 - Accumulation/Distribution Line (A/D): The Accumulation/Distribution Line assesses the flow of money into or out of a security. It helps traders identify potential trend changes.
 - Chaikin Oscillator: The Chaikin Oscillator combines price and volume data to assess buying and selling pressure. It helps traders identify potential trend changes.
@@ -193,7 +193,7 @@
 - Price Rate of Change (PROC): Price Rate of Change calculates the percentage change in price over a specified number of periods. It helps traders assess the speed of price movements.
 - Rate of Change (ROC): Rate of Change measures the percentage change in a security's price over a specified period. It helps traders identify potential trend reversals.
 - Twiggs Money Flow: Twiggs Money Flow combines price and volume data to assess buying and selling pressure. It helps traders identify potential trend changes.
-- Pattern Recognition:
+## Pattern Recognition:
 - Head and Shoulders: A reversal pattern consisting of three peaks, with the middle peak (head) higher than the two surrounding peaks (shoulders). It signals a potential trend reversal from bullish to bearish.
 - Inverse Head and Shoulders: The opposite of the head and shoulders pattern, signaling a potential trend reversal from bearish to bullish.
 - Cup and Handle: A bullish continuation pattern that resembles the shape of a tea cup. It indicates a potential continuation of an existing uptrend.
@@ -213,7 +213,7 @@
 - Bullish and Bearish Belt Hold Lines: Single candlestick patterns with significant opening and closing price gaps. Bullish belt hold is bullish, while bearish belt hold is bearish.
 - Three Inside Up and Three Inside Down: Candlestick reversal patterns. Three inside up is bullish, and three inside down is bearish.
 - Rickshaw Man: A candlestick pattern with a long shadow and a small body, indicating uncertainty in the market.
-- Specialized Indicators:
+## Specialized Indicators:
 - Arms Index (TRIN): A market breadth indicator that assesses buying and selling pressure in the market.
 - Bollinger Bandwidth: Measures the width between the Bollinger Bands, helping traders gauge volatility.
 - Coppock Curve: A momentum indicator used for long-term trend analysis.
