@@ -1,4 +1,4 @@
-- Trend Indicators:
+## Trend Indicators:
 - Simple Moving Average (SMA): SMA smooths price data over a specific period, helping traders identify the general direction of a trend.
 - Exponential Moving Average (EMA): EMA gives more weight to recent prices, making it more responsive to recent market movements.
 - Weighted Moving Average (WMA): WMA assigns different weights to prices, allowing traders to emphasize specific price data.
