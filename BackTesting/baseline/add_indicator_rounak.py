@@ -20,7 +20,7 @@ def get_data(timeframe, name):
 
 
 # Load data
-df = get_data(time_frame, "total")
+df = get_data(time_frame, "train")
 
 # Indicators
 df['Daily_Return'] = df['close'].pct_change()*1000
@@ -83,11 +83,11 @@ df = df.drop(['macd', 'signal', 'EMA', 'high', 'low'], axis=1)
 df = df.dropna()
 
 # Get the final df with indicators to junk.csv
-df.to_csv("data_with_indicators/btcusdt_" + time_frame + "_" + "total" + ".csv")
+df.to_csv("data_with_indicators/btcusdt_" + time_frame + "_" + "train" + ".csv")
 
 
 
-df = get_data(time_frame, "gold")
+df = get_data(time_frame, "val")
 
 # Indicators
 df['Daily_Return'] = df['close'].pct_change()*1000
@@ -148,4 +148,4 @@ df = df.drop(['macd', 'signal', 'EMA', 'high', 'low'], axis=1)
 df = df.dropna()
 
 # Get the final df with indicators to junk.csv
-df.to_csv("data_with_indicators/btcusdt_" + time_frame + "_" + "gold" + ".csv")
+df.to_csv("data_with_indicators/btcusdt_" + time_frame + "_" + "val" + ".csv")

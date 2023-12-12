@@ -14,11 +14,18 @@ def get_data(timeframe, name):
 # Tick Size of Data
 time_frame = sys.argv[1]
 # Load data
-df_train = get_data(time_frame, "total")
-df_val = get_data(time_frame, "gold")
+df_train = get_data(time_frame, "train")
+
+# Filter rows within 1% to 99% quantile range
+# lower_quantile = df_train[f'Next_{k}_Days_Return'].quantile(0.005)
+# upper_quantile = df_train[f'Next_{k}_Days_Return'].quantile(0.995)
+# # df_train = df_train[(df_train[f'Next_{k}_Days_Return'] >= lower_quantile) & (df_train[f'Next_{k}_Days_Return'] <= upper_quantile)]
+# df_train.loc[df_train[f'Next_{k}_Days_Return'] < lower_quantile, f'Next_{k}_Days_Return'] = lower_quantile
+# df_train.loc[df_train[f'Next_{k}_Days_Return'] > upper_quantile, f'Next_{k}_Days_Return'] = upper_quantile
+df_val = get_data(time_frame, "val")
 
 # Create the linear regression model
-model = Ridge(alpha=10)
+model = LinearRegression()
 
 
 # Define the independent variables
@@ -42,7 +49,7 @@ df_val['indicator'] = 0
 # X_train.head()
 
 model.fit(X_train, y_train)
-print("model_coef", model.coef_)
+# print("model_coef", model.coef_)
 
 # Predict the dependent variable of the training data
 y_pred = model.predict(X_train)
@@ -66,7 +73,7 @@ for index, _ in data.iterrows():
             # enter short position/exit long position
             tot -= 1
             data.at[index, 'signal'] = -1
-data.to_csv("../src/logs/lin_reg_total_" + time_frame + ".csv")
+data.to_csv("../src/logs/lin_reg_train_" + time_frame + ".csv")
 
 # Predict the dependent variable of the validation data
 y_pred = model.predict(X_val)
@@ -87,4 +94,4 @@ for index, _ in data.iterrows():
             # enter short position/exit long position
             tot -= 1
             data.at[index, 'signal'] = -1
-data.to_csv("../src/logs/lin_reg_gold_" + time_frame + ".csv")
+data.to_csv("../src/logs/lin_reg_val_" + time_frame + ".csv")

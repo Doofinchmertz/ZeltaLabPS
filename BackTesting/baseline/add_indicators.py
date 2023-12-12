@@ -70,17 +70,16 @@ for name in ["train", "total", "val"]:
     # OBV
     df['OBV'] = talib.OBV(df['close'], df['volume'])
 
-    # O-C
-    df['o_c'] = df['open'] - df['close']
 
     # (O-C)*V
     df['o_c*v'] = df['o_c']*df['volume']
 
-    # H-L
+
+
+    # O-C
+    df['o_c'] = df['open'] - df['close']
     df['h_l'] = df['high'] - df['low']
-
     df[f'EMA_5'] = talib.EMA(df['close'], timeperiod=5)
-
     df['Alpha_8'] = 0.386/df['low'] + df['low']/df['close'] 
     df['Will_R'] = talib.WILLR(df.high,df.low,df.close,timeperiod=5)
 

@@ -18,15 +18,20 @@ X = pd.DataFrame(X_normalized, columns=X.columns)
 y = pd.DataFrame(y, columns=y.columns)
 
 
-model = Ridge(alpha=0.01)
-look_back = 1920
-pred_window = 72
+model = Ridge(alpha=0.001)
+look_back = 1920*2
+pred_window = 720*2
 target_k = 1
 sl_thresh = 4
 y_pred = []
 y_actual = []
 df['predicted_return'] = 0
 for i in range(look_back, len(X) - pred_window, pred_window):
+    lower_quantile = y[i-look_back:i-target_k][f'target_{target_k}d'].quantile(0.01)
+    upper_quantile = y[i-look_back:i-target_k][f'target_{target_k}d'].quantile(0.99)
+    X_merged = pd.concat([X[i-look_back:i-target_k], y[i-look_back:i-target_k][f'target_{target_k}d']], axis=1)
+    X_merged = X_merged[(X_merged[f'target_{target_k}d'] > lower_quantile) & (X_merged[f'target_{target_k}d'] < upper_quantile)]
+    # model.fit(X_merged.drop(f'target_{target_k}d', axis=1), X_merged[f'target_{target_k}d'])
     model.fit(X[i-look_back:i-target_k], y[i-look_back:i-target_k][f'target_{target_k}d'])
     df.loc[df[i:i+pred_window].index, 'predicted_return'] = model.predict(X[i:i+pred_window])
 
