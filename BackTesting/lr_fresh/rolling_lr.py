@@ -9,10 +9,10 @@ df.set_index(df['datetime'], inplace=True)
 y = df['Next_2h_Return']
 X = df.drop(['Next_2h_Return', 'open', 'high', 'low', 'close', 'datetime', 'volume'], axis=1)
 
-look_back = 1824
-pred_window = 1656
+look_back = 1248
+pred_window = 1056
 k = 2
-cut = 2
+cut = 2.5
 lamda = 0.8
 
 old_coef = np.zeros(X.shape[1])

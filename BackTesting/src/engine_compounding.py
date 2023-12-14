@@ -38,9 +38,10 @@ class Engine():
 
         for row in self.logs.itertuples():
             signal = int(row.signal)
-            price = row.open
+            open = row.open
             timestamp = row.datetime
             close = row.close
+            price = close
 
             if (signal) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
