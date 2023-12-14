@@ -5,13 +5,14 @@ import threading
 import os
 import concurrent.futures
 
-df = pd.read_csv("data/btcusdt_5m_train.csv")
+df = pd.read_csv("data/btcusdt_1h_train.csv")
 df['datetime'] = pd.to_datetime(df['datetime'])
 df.set_index(df['datetime'], inplace=True)
 
-y = df['Next_2h_Return']
-X = df.drop(['Next_2h_Return', 'open', 'high', 'low', 'close', 'datetime', 'volume'], axis=1)
-cut = 2
+y = df['Next_2_Days_Return']
+X = df.drop(['Next_2_Days_Return', 'open', 'close', 'datetime'], axis=1)
+
+cut = 1.6
 
 def run_script(look_back, pred_window, lock):
     try:
@@ -61,7 +62,7 @@ best_pred_window = 0
 
 
 lock = threading.Lock()
-max_threads = 10
+max_threads = 16
 semaphore = threading.BoundedSemaphore(max_threads)
 threads = []
 

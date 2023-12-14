@@ -30,17 +30,17 @@ def plots_candlestick(df, entry_idx, exit_idx, starting_position, title):
         median_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'], showlegend=True, name='Median')
         fig.add_trace(median_line_trace, row=1, col=1)
 
-        # also add median + REVERSION_THRESH*std line curve on 1st row
-        median_plus_reversion_thresh_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'] + selected_data['std']*REVERSION_THRESH, showlegend=True, name='Median + REVERSION_THRESH*std')
-        fig.add_trace(median_plus_reversion_thresh_line_trace, row=1, col=1)
+        # # also add median + REVERSION_THRESH*std line curve on 1st row
+        # median_plus_reversion_thresh_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'] + selected_data['std']*REVERSION_THRESH, showlegend=True, name='Median + REVERSION_THRESH*std')
+        # fig.add_trace(median_plus_reversion_thresh_line_trace, row=1, col=1)
 
-        # also add median - REVERSION_THRESH*std line curve on 1st row
-        median_minus_reversion_thresh_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'] - selected_data['std']*REVERSION_THRESH, showlegend=True, name='Median - REVERSION_THRESH*std')
-        fig.add_trace(median_minus_reversion_thresh_line_trace, row=1, col=1)
+        # # also add median - REVERSION_THRESH*std line curve on 1st row
+        # median_minus_reversion_thresh_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'] - selected_data['std']*REVERSION_THRESH, showlegend=True, name='Median - REVERSION_THRESH*std')
+        # fig.add_trace(median_minus_reversion_thresh_line_trace, row=1, col=1)
 
-        # also add DDI line curve on 1nd row with separate y-axis
-        ddi_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['DDI'], showlegend=True, name='DDI')
-        fig.add_trace(ddi_line_trace, row=2, col=1)
+        # # also add DDI line curve on 1nd row with separate y-axis
+        # ddi_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['DDI'], showlegend=True, name='DDI')
+        # fig.add_trace(ddi_line_trace, row=2, col=1)
 
         
         # Bar trace for volumes on 2nd row without legend
@@ -88,19 +88,19 @@ clear_folders()
 df = pd.read_csv("../data/btcusdt_3m_train.csv")
 
 
-MEDIAN_WINDOW = 20
+MEDIAN_WINDOW = 60
+REVERSION_THRESH = 0.03
 
-REVERSION_THRESH = 2
-STOPLOSS = .005
-PROFIT_CAP = 0.01
+STOPLOSS = .01
+PROFIT_CAP = 0.02
 MAX_TRADE_HOLD = 90
-DI_WINDOW = 20
+# DI_WINDOW = 20
 
 df['median'] = df['close'].rolling(MEDIAN_WINDOW).median().shift(1)
-df['std'] = df['close'].rolling(MEDIAN_WINDOW).std().shift(1)
-df['PLUS_DI'] = talib.PLUS_DI(df.high, df.low, df.close, timeperiod=DI_WINDOW)
-df['MINUS_DI'] = talib.MINUS_DI(df.high, df.low, df.close, timeperiod=DI_WINDOW)
-df['DDI'] = df['PLUS_DI'] - df['MINUS_DI']
+# df['std'] = df['close'].rolling(MEDIAN_WINDOW).std().shift(1)
+# df['PLUS_DI'] = talib.PLUS_DI(df.high, df.low, df.close, timeperiod=DI_WINDOW)
+# df['MINUS_DI'] = talib.MINUS_DI(df.high, df.low, df.close, timeperiod=DI_WINDOW)
+# df['DDI'] = df['PLUS_DI'] - df['MINUS_DI']
 
 df['indicator'] = 0
 df['signal'] = 0
@@ -115,23 +115,11 @@ entry_title = ""
 exit_title = ""
 for i in range(MEDIAN_WINDOW, len(df)):
     if current_position == 0: # TRADE ENTRY
-        # 
-        # if abs(df['DDI'][i]) > 20:
-        #     df.at[i, 'indicator'] = 0
-        #     continue
-        # 
         median = df['median'][i]
-        std = df['std'][i]  
-        # if df['close'][i] > median + std*TREND_THRESH:
-        #     df.at[i, 'indicator'] = 1
-        #     entry_title = "+TREND_THRESH"
-        # elif df['close'][i] < median - std*TREND_THRESH:
-        #     df.at[i, 'indicator'] = -1
-        #     entry_title = "-TREND_THRESH"
-        if df['close'][i] < median - std*REVERSION_THRESH:
+        if df['close'][i] < median*(1 - REVERSION_THRESH):
             df.at[i, 'indicator'] = 1
             entry_title = "-REVERSION_THRESH"
-        elif df['close'][i] > median + std*REVERSION_THRESH:
+        elif df['close'][i] > median*(1 + REVERSION_THRESH):
             df.at[i, 'indicator'] = -1
             entry_title = "+REVERSION_THRESH"
         else:
