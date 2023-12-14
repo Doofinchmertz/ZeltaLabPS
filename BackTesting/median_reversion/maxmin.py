@@ -20,29 +20,12 @@ def plots_candlestick(df, entry_idx, exit_idx, starting_position, title):
                                             high=selected_data['high'],
                                             low=selected_data['low'],
                                             close=selected_data['close'])
-        # fig.add_trace(candlestick_trace, row=1, col=1)
+        fig.add_trace(candlestick_trace, row=1, col=1)
 
         # also add close price line curve on 1st row
         close_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['close'], showlegend=True, name='Close Price')
         fig.add_trace(close_line_trace, row=1, col=1)
 
-        # also add median line curve on 1st row
-        median_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'], showlegend=True, name='Median')
-        fig.add_trace(median_line_trace, row=1, col=1)
-
-        # also add median + REVERSION_THRESH*std line curve on 1st row
-        median_plus_reversion_thresh_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'] + selected_data['std']*REVERSION_THRESH, showlegend=True, name='Median + REVERSION_THRESH*std')
-        fig.add_trace(median_plus_reversion_thresh_line_trace, row=1, col=1)
-
-        # also add median - REVERSION_THRESH*std line curve on 1st row
-        median_minus_reversion_thresh_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['median'] - selected_data['std']*REVERSION_THRESH, showlegend=True, name='Median - REVERSION_THRESH*std')
-        fig.add_trace(median_minus_reversion_thresh_line_trace, row=1, col=1)
-
-        # also add DDI line curve on 1nd row with separate y-axis
-        ddi_line_trace = go.Scatter(x=selected_data['datetime'], y=selected_data['DDI'], showlegend=True, name='DDI')
-        fig.add_trace(ddi_line_trace, row=2, col=1)
-
-        
         # Bar trace for volumes on 2nd row without legend
         volume_bar_trace = go.Bar(x=selected_data['datetime'], y=selected_data['volume'], showlegend=False)
         fig.add_trace(volume_bar_trace, row=2, col=1)
@@ -88,20 +71,10 @@ clear_folders()
 df = pd.read_csv("../data/btcusdt_3m_train.csv")
 
 
-MEDIAN_WINDOW = 20
 
-REVERSION_THRESH = 3
-# TREND_THRESH = 2
 STOPLOSS = .005
 PROFIT_CAP = 0.01
 MAX_TRADE_HOLD = 90
-DI_WINDOW = 20
-
-df['median'] = df['close'].rolling(MEDIAN_WINDOW).median().shift(1)
-df['std'] = df['close'].rolling(MEDIAN_WINDOW).std().shift(1)
-df['PLUS_DI'] = talib.PLUS_DI(df.high, df.low, df.close, timeperiod=DI_WINDOW)
-df['MINUS_DI'] = talib.MINUS_DI(df.high, df.low, df.close, timeperiod=DI_WINDOW)
-df['DDI'] = df['PLUS_DI'] - df['MINUS_DI']
 
 df['indicator'] = 0
 df['signal'] = 0
@@ -114,29 +87,15 @@ exit_idx = None
 count = 0
 entry_title = ""
 exit_title = ""
-for i in range(MEDIAN_WINDOW, len(df)):
+for i in range(2, len(df)):
     if current_position == 0: # TRADE ENTRY
-        # 
-        # if abs(df['DDI'][i]) > 20:
-        #     df.at[i, 'indicator'] = 0
-        #     continue
-        # 
-        median = df['median'][i]
-        std = df['std'][i]  
-        # if df['close'][i] > median + std*TREND_THRESH:
-        #     df.at[i, 'indicator'] = 1
-        #     entry_title = "+TREND_THRESH"
-        # elif df['close'][i] < median - std*TREND_THRESH:
-        #     df.at[i, 'indicator'] = -1
-        #     entry_title = "-TREND_THRESH"
-        if df['close'][i] < median - std*REVERSION_THRESH:
-            df.at[i, 'indicator'] = 1
-            entry_title = "-REVERSION_THRESH"
-        elif df['close'][i] > median + std*REVERSION_THRESH:
-            df.at[i, 'indicator'] = -1
-            entry_title = "+REVERSION_THRESH"
-        else:
-            df.at[i, 'indicator'] = 0
+        if (df['close'][i-1] - df['close'][i])*(df['close'][i-1] - df['close'][i-2]) > 1000:
+            if df['close'][i] > df['close'][i-1]:
+                df.at[i, 'indicator'] = 1
+                entry_title = "MINIMA"
+            else:
+                df.at[i, 'indicator'] = -1
+                entry_title = "MAXIMA"
     else: # TRADE EXIT
         if i >= entry_idx + MAX_TRADE_HOLD:
             df.at[i, 'indicator'] = -1*current_position
@@ -177,8 +136,9 @@ for i in range(MEDIAN_WINDOW, len(df)):
         exit_idx = i
         count += 1
         print(f"Plotting {count}th trade")
-        plots_candlestick(df, entry_idx, exit_idx, starting_position, entry_title + " " + exit_title)
+        # if exit_title == "PROFIT_CAP":
+        #     plots_candlestick(df, entry_idx, exit_idx, starting_position, entry_title + " " + exit_title)
         entry_idx = None
         exit_idx = None
 
-df.to_csv("../src/logs/median_reversion.csv")
+df.to_csv("../src/logs/maxmin.csv")
