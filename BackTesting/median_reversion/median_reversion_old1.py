@@ -5,7 +5,6 @@ from plotly.subplots import make_subplots
 import talib
 import os
 import random
-from collections import deque
 
 def plots_candlestick(df, entry_idx, exit_idx, starting_position, title):
     # Create subplots and mention plot grid size
@@ -87,7 +86,7 @@ def clear_folders():
 
 clear_folders()
 
-df = pd.read_csv("../data/btcusdt_3m_total.csv")
+df = pd.read_csv("../data/btcusdt_3m_train.csv")
 
 
 MEDIAN_WINDOW = 25
@@ -95,21 +94,13 @@ MEDIAN_WINDOW = 25
 REVERSION_THRESH = 2
 TREND_THRESH = 2.5
 STOPLOSS = .06
-MIN_SL_CAP = 0.02
 PROFIT_CAP = 0.02
-MIN_PROFIT_CAP = 0.004
 MAX_TRADE_HOLD = 1800
-
-PROFIT_CAP_MULTIPLIER = 0.04
-STOPLOSS_MULTIPLIER = 0.06
 
 DI_WINDOW = 15
 DDI_REV_THRESH = 10
 DDI_TREND_THRESH = 50
 
-PROFIT_LOSS_WINDOW = 10
-
-q = deque(maxlen=PROFIT_LOSS_WINDOW)
 
 df['median'] = df['close'].rolling(MEDIAN_WINDOW).median().shift(1)
 df['std'] = df['close'].rolling(MEDIAN_WINDOW).std().shift(1)
@@ -162,41 +153,28 @@ for i in range(MEDIAN_WINDOW, len(df)):
             df.at[i, 'indicator'] = -1
             entry_title = "-DDI_TREND_THRESH"
     else: # TRADE EXIT
-        PROFIT_CAP = max(PROFIT_CAP_MULTIPLIER*q.count('P')/len(q), MIN_PROFIT_CAP) if len(q) >= PROFIT_LOSS_WINDOW else PROFIT_CAP
-        STOPLOSS = STOPLOSS_MULTIPLIER*(len(q) - q.count('S'))/len(q) if len(q) >= PROFIT_LOSS_WINDOW else STOPLOSS
-
-        PROFIT_CAP = PROFIT_CAP * (1 - (i - entry_idx)/MAX_TRADE_HOLD)
-        STOPLOSS = STOPLOSS * (1 - (i - entry_idx)/MAX_TRADE_HOLD)
-
-        PROFIT_CAP = max(PROFIT_CAP, MIN_PROFIT_CAP)
-
         if i >= entry_idx + MAX_TRADE_HOLD:
             df.at[i, 'indicator'] = -1*current_position
             exit_title = "MAX_TRADE_HOLD"
             max_hold_exits += 1
-            q.append('M')
         if current_position == 1:
             if df['close'][i] > df['close'][entry_idx]*(1+PROFIT_CAP):
                 df.at[i, 'indicator'] = -1
                 exit_title = "PROFIT_CAP"
                 pc_exits += 1
-                q.append('P')
             elif df['close'][i] < df['close'][entry_idx]*(1-STOPLOSS):
                 df.at[i, 'indicator'] = -1
                 exit_title = "STOPLOSS"
                 sl_exits += 1
-                q.append('S')
         elif current_position == -1:
             if df['close'][i] < df['close'][entry_idx]*(1-PROFIT_CAP):
                 df.at[i, 'indicator'] = 1
                 exit_title = "PROFIT_CAP"
                 pc_exits += 1
-                q.append('P')
             elif df['close'][i] > df['close'][entry_idx]*(1+STOPLOSS):
                 df.at[i, 'indicator'] = 1
                 exit_title = "STOPLOSS"
                 sl_exits += 1
-                q.append('S')
     
     starting_position = current_position
 
@@ -220,16 +198,15 @@ for i in range(MEDIAN_WINDOW, len(df)):
         count += 1  
         if count%100 == 0:
             print(f"Plotting {count}th trade")
-        # if i > 0.*len(df):
-        #     if exit_title == "STOPLOSS":
-        #         plots_candlestick(df, entry_idx, exit_idx, starting_position, entry_title + " " + exit_title)
+        # if i > 0.3*len(df) and i < 0.6*len(df):
+        #     plots_candlestick(df, entry_idx, exit_idx, starting_position, entry_title + " " + exit_title)
         entry_idx = None
         exit_idx = None
 
 print(f"sl_exits: {sl_exits}")
 print(f"pc_exits: {pc_exits}")
 print(f"max_hold_exits: {max_hold_exits}")
-# print(f"pc_exits/sl_exits: {pc_exits/sl_exits}")
-# print(f"SL_PROFIT_RATIO: {STOPLOSS/PROFIT_CAP}")
+print(f"pc_exits/sl_exits: {pc_exits/sl_exits}")
+print(f"SL_PROFIT_RATIO: {STOPLOSS/PROFIT_CAP}")
 
 df.to_csv("../src/logs/median_reversion.csv")

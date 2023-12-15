@@ -2,6 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+import talib
 from empyrical import max_drawdown
 
 class Engine():
@@ -207,7 +208,7 @@ class Engine():
         ax.set_xticks(xticks)
         ax.set_xticklabels([self.logs.loc[0, 'datetime'], self.logs.loc[len//4, 'datetime'], self.logs.loc[2*(len//4), 'datetime'], self.logs.loc[3*(len//4), 'datetime'], self.logs.loc[len, 'datetime']])  # Set labels at the start and end
             
-        # combine the legend entries from both plots
+        # combine the legend entries from all plots
         lines, labels = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax.legend(lines + lines2, labels + labels2, loc='upper left')
@@ -237,4 +238,6 @@ class Engine():
         self.metrics["Immediate Losses"] = self.immediate_losses
         self.metrics["Immediate Profits"] = self.immediate_profits
         print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
+        
+        
         return self.metrics

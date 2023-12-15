@@ -2,7 +2,7 @@ import pandas as pd
 import talib
 import numpy as np
 
-name = 'diamond'
+name = 'train'
 ts = '1h'
 df = pd.read_csv(f"../data/btcusdt_{ts}_{name}.csv")
 
@@ -14,11 +14,11 @@ df['RSI'] -= 50
 df['RSI'] = df['RSI'].apply(lambda x: x if x > 20 or x < -20 else 0)
 df['RSI'] = df['RSI'].apply(lambda x: x - 20 if x >= 20 else x)
 df['RSI'] = df['RSI'].apply(lambda x: x + 20 if x <= -20 else x)                            
-df.fillna(0,inplace=True)
+# df.fillna(0,inplace=True)
 
-df['exp_RSI'] = 0
-df['exp_RSI'] = np.exp(np.abs(df['RSI']))
-df['exp_RSI'] = np.where(df['RSI'] > 0, -df['exp_RSI'], df['exp_RSI'])
+# df['exp_RSI'] = 0
+# df['exp_RSI'] = np.exp(np.abs(df['RSI']))
+# df['exp_RSI'] = np.where(df['RSI'] > 0, -df['exp_RSI'], df['exp_RSI'])
 
 df['EMA'] = talib.EMA(df['close'], timeperiod=2)
 df['EMA_Slope'] = -df['EMA'].pct_change(1)*100
@@ -32,7 +32,11 @@ shifted_signal = df['signal'].shift(1)
 shifted_signal.fillna(0, inplace=True)
 df['macd'].fillna(0, inplace=True)
 df['macd_signal'] = df['signal'] - shifted_signal
+df['WILLR'] = talib.WILLR(df['high'], df['low'], df['close'], timeperiod=14)
+df['BOP'] = talib.BOP(df['open'], df['high'], df['low'], df['close'])
+df['STOCHF_K'], _ = talib.STOCHF(df['high'], df['low'], df['close'], fastk_period=5, fastd_period=3, fastd_matype=0)
+df['ROCR'] = talib.ROCR(df['close'], timeperiod=10)
 
-df = df.drop(['RSI', 'macd', 'signal', 'EMA'], axis=1)
+df = df.drop(['macd', 'signal', 'EMA'], axis=1)
 df.dropna(inplace=True)
 df.to_csv(f"data/btcusdt_{ts}_{name}.csv", index=False)

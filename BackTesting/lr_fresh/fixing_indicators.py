@@ -11,7 +11,7 @@ df['Next_2h_Return'] = df['Next_2h_Return']*1000
 
 corr = []
 for k in range(2,100):
-    df['ADX'] = talib.ADX(df['high'], df['low'], df['close'], timeperiod = k)
-    corr.append(df['ADX'].corr(df['Next_2h_Return']))
+    df['NATR'] = talib.NATR(df['high'], df['low'], df['close'], timeperiod=k)
+    corr.append(df['NATR'].corr(df['Next_2h_Return']))
 plt.plot(range(2,100), corr)
 plt.show()

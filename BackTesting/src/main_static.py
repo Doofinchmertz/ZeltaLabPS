@@ -44,4 +44,5 @@ if __name__ == "__main__":
     print(f"Average Trade Holding Duration {metrics['Average Trade Holding Duration']}")
     print(f"Immediate Losses {metrics['Immediate Losses']}" )
     print(f"Immediate Profits {metrics['Immediate Profits']}" )
+    print(f"Net PnL {metrics['Net PnL']}")
     e.plot()

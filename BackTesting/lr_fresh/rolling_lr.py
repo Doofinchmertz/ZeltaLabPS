@@ -2,12 +2,14 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
-df = pd.read_csv("data/btcusdt_1h_total.csv")
+df = pd.read_csv("data/btcusdt_1h_train.csv")
 df['datetime'] = pd.to_datetime(df['datetime'])
 df.set_index(df['datetime'], inplace=True)
 
 y = df['Next_2h_Return']
-X = df.drop(['Next_2h_Return', 'open', 'high', 'low', 'close', 'datetime', 'volume'], axis=1)
+X = df.drop(['Next_2h_Return', 'open', 'close', 'datetime', 'volume', 'high', 'low'], axis=1)
+
+# X = df.drop(['Next_2_Days_Return', 'open', 'high', 'low', 'close', 'datetime'], axis=1)
 
 look_back = 1248
 pred_window = 1056
