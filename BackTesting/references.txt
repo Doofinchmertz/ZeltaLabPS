@@ -1,2 +1,0 @@
-https://www.qmr.ai/building-a-backtesting-framework-in-python-from-scratch/
-https://www.qmr.ai/building-a-backtesting-framework-in-python-part-ii/

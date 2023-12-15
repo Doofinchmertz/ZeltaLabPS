@@ -2,6 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+from empyrical import max_drawdown
 
 class Engine():
     def __init__(self, log_name = None, static_trade_amount = 1000, without_transaction_cost = False, tick_sz = 5) -> None:
@@ -36,6 +37,7 @@ class Engine():
         self.log_name = log_name
         self.close_price_lst = []
         self.open_price_lst = []
+        self.trade_returns = []
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
@@ -117,6 +119,7 @@ class Engine():
             self.status += signal
             if trade_closed:
                 self.trade_pnl_lst.append(trade_pnl)
+                self.trade_returns.append(trade_pnl + self.transaction_cost * self.each_trade_amount )
                 self.logs.loc[row.Index, 'trade_pnl'] = trade_pnl
             if trade_pnl > 0:
                 self.gross_profit += trade_pnl
@@ -143,6 +146,7 @@ class Engine():
             self.net_pnl += trade_pnl
             self.assets = 0
             self.trade_pnl_lst.append(trade_pnl)
+            self.trade_returns.append(trade_pnl + self.transaction_cost * self.each_trade_amount )
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
@@ -166,6 +170,7 @@ class Engine():
             self.net_pnl += trade_pnl
             self.assets = 0
             self.trade_pnl_lst.append(trade_pnl)
+            self.trade_returns.append(trade_pnl +self.transaction_cost * self.each_trade_amount )
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
@@ -224,13 +229,12 @@ class Engine():
         self.metrics["Number of Winning Trades"] = self.num_win_trades
         self.metrics["Number of Losing Trades"] = self.num_lose_trades
         self.net_portfolio_lst = np.array(self.net_pnl_lst) + self.each_trade_amount
-        self.metrics["Maximum Drawdown"] = np.max((1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst)))*100
-        # self.metrics["Maximum Drawdown"] = max_drawdown(self.trade_pnl_lst)*100
+        # self.metrics["Maximum Drawdown"] = np.max((1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst)))*100
+        self.metrics["Maximum Drawdown"] = max_drawdown(np.array(self.trade_returns)/1000)*100
         self.metrics["Total Transaction Cost"] = self.total_transaction_cost
         self.metrics["Average Trade Holding Duration"] = np.mean([self.trade_holding_times])
         self.metrics["Maximum Trade Holding Duration"] = np.max([self.trade_holding_times])
         self.metrics["Immediate Losses"] = self.immediate_losses
         self.metrics["Immediate Profits"] = self.immediate_profits
         print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
-        
         return self.metrics
