@@ -1,7 +1,9 @@
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.linear_model import LinearRegression
 import pandas as pd
 import sys
 import numpy as np
+import statsmodels.api as sm
+from matplotlib import pyplot as plt
 
 k = sys.argv[2]
 
@@ -15,17 +17,9 @@ def get_data(timeframe, name):
 time_frame = sys.argv[1]
 # Load data
 df_train = get_data(time_frame, "train")
-
-# Filter rows within 1% to 99% quantile range
-# lower_quantile = df_train[f'Next_{k}_Days_Return'].quantile(0.005)
-# upper_quantile = df_train[f'Next_{k}_Days_Return'].quantile(0.995)
-# # df_train = df_train[(df_train[f'Next_{k}_Days_Return'] >= lower_quantile) & (df_train[f'Next_{k}_Days_Return'] <= upper_quantile)]
-# df_train.loc[df_train[f'Next_{k}_Days_Return'] < lower_quantile, f'Next_{k}_Days_Return'] = lower_quantile
-# df_train.loc[df_train[f'Next_{k}_Days_Return'] > upper_quantile, f'Next_{k}_Days_Return'] = upper_quantile
 df_val = get_data(time_frame, "val")
 
 # Create the linear regression model
-model = LinearRegression()
 
 
 # Define the independent variables
@@ -45,16 +39,20 @@ y_val = df_val[f'Next_{k}_Days_Return']
 df_train['indicator'] = 0
 df_val['indicator'] = 0
 # Fit the linear regression model on the training data
-
-# X_train.head()
-
-model.fit(X_train, y_train)
-# print("model_coef", model.coef_)
-
-# Predict the dependent variable of the training data
+X_train = sm.add_constant(X_train)
+mod_sm = sm.OLS(y_train, X_train)
+res_sm = mod_sm.fit()
+y_resid = [abs(resid) for resid in res_sm.resid]
+X_resid = sm.add_constant(res_sm.fittedvalues)
+mod_resid = sm.OLS(y_resid, X_resid)
+res_resid = mod_resid.fit()
+mod_fv = res_resid.fittedvalues
+weights = 1 / (mod_fv**2)
+X_train.drop('const', axis=1, inplace=True)
+model = LinearRegression()
+model.fit(X_train, y_train, sample_weight=weights)
 y_pred = model.predict(X_train)
-# quantile_value = np.quantile(np.abs(y_pred), 0.99)
-# print("quantile value: ", quantile_value)
+
 print(np.corrcoef(y_pred, y_train)[0,1])
 quantile_value = 1.5
 

@@ -1,4 +1,0 @@
-Add shorting implementation
-Add Checks for positions in strategy
-Implement Strategy mean reversion based on max(high%,low%)
-Perform Sanity Checks

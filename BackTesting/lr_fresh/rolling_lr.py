@@ -1,44 +1,43 @@
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import LinearRegression
 import numpy as np
 
+df = pd.read_csv("data/btcusdt_1h_total.csv")
+df['datetime'] = pd.to_datetime(df['datetime'])
+df.set_index(df['datetime'], inplace=True)
 
+y = df['Next_2h_Return']
+X = df.drop(['Next_2h_Return', 'open', 'high', 'low', 'close', 'datetime', 'volume'], axis=1)
 
-df = pd.read_csv('data/btc_1h_train.csv')
+look_back = 1248
+pred_window = 1056
+k = 2
+cut = 2.5
+lamda = 0.8
 
-y = df.filter(like = 'target')
-X = df.drop(y.columns, axis=1)
-X = X.drop(['open', 'high', 'low', 'close'], axis=1)
-X = X.drop('datetime', axis=1)
-
-scaler = StandardScaler()
-X_normalized = scaler.fit_transform(X)
-X = pd.DataFrame(X_normalized, columns=X.columns)
-y = pd.DataFrame(y, columns=y.columns)
-
-
-model = Ridge(alpha=0.001)
-look_back = 1920*2
-pred_window = 720*2
-target_k = 1
-sl_thresh = 4
-y_pred = []
-y_actual = []
+old_coef = np.zeros(X.shape[1])
+old_intercept = 0
 df['predicted_return'] = 0
+model = LinearRegression()
 for i in range(look_back, len(X) - pred_window, pred_window):
-    lower_quantile = y[i-look_back:i-target_k][f'target_{target_k}d'].quantile(0.01)
-    upper_quantile = y[i-look_back:i-target_k][f'target_{target_k}d'].quantile(0.99)
-    X_merged = pd.concat([X[i-look_back:i-target_k], y[i-look_back:i-target_k][f'target_{target_k}d']], axis=1)
-    X_merged = X_merged[(X_merged[f'target_{target_k}d'] > lower_quantile) & (X_merged[f'target_{target_k}d'] < upper_quantile)]
-    # model.fit(X_merged.drop(f'target_{target_k}d', axis=1), X_merged[f'target_{target_k}d'])
-    model.fit(X[i-look_back:i-target_k], y[i-look_back:i-target_k][f'target_{target_k}d'])
+    # lower_quantile = y[i-look_back:i-k].quantile(0.001)
+    # upper_quantile = y[i-look_back:i-k].quantile(0.999)
+    # X_merged = pd.concat([X[i-look_back:i-k], y[i-look_back:i-k]], axis=1)
+    # X_merged = X_merged[(X_merged['Next_2h_Return'] > lower_quantile) & (X_merged['Next_2h_Return'] < upper_quantile)]
+    # model.fit(X_merged.drop('Next_2h_Return', axis=1), X_merged['Next_2h_Return'])
+    model.fit(X[i-look_back:i-k], y[i-look_back:i-k])
+    # new_coef = model.coef_
+    # new_intercept = model.intercept_
+    # model.coef_ = lamda * new_coef + (1 - lamda) * old_coef
+    # model.intercept_ = lamda * new_intercept + (1 - lamda) * old_intercept
+    # old_coef = model.coef_
+    # old_intercept = model.intercept_
     df.loc[df[i:i+pred_window].index, 'predicted_return'] = model.predict(X[i:i+pred_window])
-
 df.drop(df.index[:look_back], inplace=True)
-cut = 1.5
 df['indicator'] = np.where(df['predicted_return'] > cut, 1, np.where(df['predicted_return'] < -cut, -1, 0))
+df['signal'] = 0
 
+# Without Stoploss
 tot = 0
 for index, _ in df.iterrows():
     df.at[index, 'signal'] = 0
@@ -52,8 +51,10 @@ for index, _ in df.iterrows():
             # enter short position/exit long position
             tot -= 1
             df.at[index, 'signal'] = -1
-df.to_csv(f"../src/logs/rolling_lr_with_sl.csv")
+df.to_csv(f"../src/logs/rolling_lr.csv")
 
+# ## With Stoploss
+# sl_thresh = 20
 # compare = 0
 # thresh = -0.01*sl_thresh
 # disable_trading = 0
@@ -121,4 +122,4 @@ df.to_csv(f"../src/logs/rolling_lr_with_sl.csv")
 # df['signal'] = np.array(logs)
 
 # df = df[['datetime', 'open', 'high', 'low', 'close', 'signal']]
-# df.to_csv(f"../src/logs/rolling_lr_with_sl.csv")
+# df.to_csv(f"../src/logs/rolling_lr.csv")
