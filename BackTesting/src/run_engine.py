@@ -78,6 +78,12 @@ def generate_results_compounding(args):
     print(f"Number of Losing Trades {metrics['Number of Losing Trades']}")
     print(f"Final Cash {metrics['Final Cash']}")
     print(f"Total Transaction Cost {metrics['Total Transaction cost']}")
+    print("\nAnnual Returns:")
+    for year, annual_return in metrics["Annual Returns"].items():
+        print(f"{year}: {annual_return:.2f}%")
+    print("\nAnnual Maximum Drawdowns:")
+    for year, max_drawdown in metrics["Annual Maximum Drawdowns"].items():
+        print(f"{year}: {max_drawdown:.2f}%")
     e.plot()
 
 def run_method(args):

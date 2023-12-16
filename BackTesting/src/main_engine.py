@@ -289,17 +289,27 @@ class Compunding_Engine():
         self.last_sold_amt = 0
         self.transaction_cost = 0.0015
         self.total_transaction_cost = 0
+        self.annual_trade_returns = dict()
+
 
 
     def add_logs(self, logs: pd.DataFrame) -> None:
         self.logs = logs
 
     def run(self) -> None:
-
+        first_timestamp = None
         for row in self.logs.itertuples():
             signal = int(row.signal)
             open = row.open
             timestamp = row.datetime
+            timestamp = pd.to_datetime(timestamp)
+            if first_timestamp is None:
+                first_timestamp = timestamp
+                self.annual_trade_returns[str(timestamp.year)] = list()
+            year_difference = timestamp.year - first_timestamp.year
+            if year_difference>=1:
+                self.annual_trade_returns[str(timestamp.year)] = list()
+                first_timestamp = timestamp
             close = row.close
             price = close
 
@@ -355,6 +365,7 @@ class Compunding_Engine():
             self.status += signal
             self.daily_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
+            self.annual_trade_returns[str(timestamp.year)].append(trade_pnl)
             self.cash += trade_pnl
             if trade_pnl > 0:
                 self.gross_profit += trade_pnl
@@ -378,6 +389,7 @@ class Compunding_Engine():
             self.net_pnl += trade_pnl
             self.assets = 0
             self.daily_pnl_lst.append(trade_pnl)
+            self.annual_trade_returns[str(timestamp.year)].append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
@@ -399,6 +411,7 @@ class Compunding_Engine():
             self.assets = 0
             self.daily_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
+            self.annual_trade_returns[str(timestamp.year)].append(trade_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
             if trade_pnl > 0:
@@ -436,4 +449,11 @@ class Compunding_Engine():
         self.metrics["Number of Losing Trades"] = self.num_lose_trades
         self.metrics["Final Cash"] = self.cash
         self.metrics["Total Transaction cost"] = self.total_transaction_cost
+        self.metrics["Annual Maximum Drawdowns"] = {}
+        self.metrics["Annual Returns"] = {}
+        for year, trade_returns in self.annual_trade_returns.items():
+            annual_max_drawdown = max_drawdown(np.array(trade_returns)/1000) * 100
+            annual_return = sum(trade_returns)
+            self.metrics["Annual Maximum Drawdowns"][year] = annual_max_drawdown
+            self.metrics["Annual Returns"][year] = (100*annual_return)/1000
         return self.metrics
