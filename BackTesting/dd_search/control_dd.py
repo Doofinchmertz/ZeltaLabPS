@@ -5,7 +5,7 @@ import pandas as pd
 parser = argparse.ArgumentParser()
 
 # Add the --logs argument
-parser.add_argument("--logs", help="Location of the logs file")
+parser.add_argument("--logs", help="Location of the logs file", required=True)
 
 # Parse the command line arguments
 args = parser.parse_args()
@@ -72,10 +72,6 @@ for i in range(len(df)):
                     flag = True
         else:
             flag = False
-    print(f'prev : {prev_theoretical_net_pnl} and current : {theoretical_net_pnl}')
     prev_theoretical_net_pnl = theoretical_net_pnl
-
-print(net_pnl)
-print(theoretical_net_pnl)
 
 df.to_csv('logs/output2.csv', index=False)

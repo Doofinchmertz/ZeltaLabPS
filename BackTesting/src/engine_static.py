@@ -3,7 +3,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 import talib
-from empyrical import max_drawdown
 
 class Engine():
     def __init__(self, log_name = None, static_trade_amount = 1000, without_transaction_cost = False, tick_sz = 5) -> None:
@@ -217,6 +216,26 @@ class Engine():
 
     def get_metrics(self) -> dict:
         self.metrics["Net PnL"] = self.net_pnl
+        self.metrics["Buy and Hold PnL"] = (self.close_price_lst[-1] - self.close_price_lst[0]) * self.each_trade_amount / self.close_price_lst[0]
+        self.metrics["Gross Profit"] = self.gross_profit
+        self.metrics["Gross Loss"] = self.gross_loss
+        self.metrics["Total Trades Closed"] = self.total_trades_closed
+        self.metrics["Sharpe Ratio"] = np.mean(np.array(self.trade_pnl_lst))/np.std(np.array(self.trade_pnl_lst))
+        self.metrics["Largest Winning Trade"] = self.largest_winning_trade
+        self.metrics["Largest Losing Trade"] = self.largest_losing_trade
+        self.metrics["Min Net PnL"] = self.min_net_pnl
+        self.metrics["Average Winning Trade"] = np.mean(np.array(self.winning_trades_lst))
+        self.metrics["Average Losing Trade"] = np.mean(np.array(self.losing_trades_lst))
+        self.metrics["Number of Winning Trades"] = self.num_win_trades
+        self.metrics["Number of Losing Trades"] = self.num_lose_trades
+        self.net_portfolio_lst = np.array(self.net_pnl_lst) + self.each_trade_amount
+        self.metrics["Maximum Drawdown"] = np.max((1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst)))*100
+        self.metrics["Total Transaction Cost"] = self.total_transaction_cost
+        self.metrics["Average Trade Holding Duration"] = np.mean([self.trade_holding_times])
+        self.metrics["Maximum Trade Holding Duration"] = np.max([self.trade_holding_times])
+        self.metrics["Immediate Losses"] = self.immediate_losses
+        self.metrics["Immediate Profits"] = self.immediate_profits
+        print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
         # self.metrics["Buy and Hold PnL"] = (self.close_price_lst[-1] - self.close_price_lst[0]) * self.each_trade_amount / self.close_price_lst[0]
         # self.metrics["Gross Profit"] = self.gross_profit
         # self.metrics["Gross Loss"] = self.gross_loss

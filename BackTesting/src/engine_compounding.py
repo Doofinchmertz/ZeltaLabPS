@@ -2,6 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+from empyrical import max_drawdown
 
 class Engine():
     def __init__(self, initial_cash = 1000) -> None:
@@ -29,6 +30,7 @@ class Engine():
         self.last_sold_amt = 0
         self.transaction_cost = 0.0015
         self.total_transaction_cost = 0
+        self.returns_lst = []
 
 
     def add_logs(self, logs: pd.DataFrame) -> None:
@@ -65,6 +67,7 @@ class Engine():
                 elif(self.status == -1):
                     trade_pnl = self.last_sold_amt + self.assets * price
                     trade_pnl -= self.transaction_cost*self.last_sold_amt
+                    self.returns_lst.append(trade_pnl/self.last_sold_amt)
                     self.total_transaction_cost += self.transaction_cost*self.last_sold_amt
                     self.net_pnl += trade_pnl
                     self.assets = 0
@@ -82,6 +85,7 @@ class Engine():
                 elif(self.status == 1):
                     trade_pnl = self.assets * price - self.last_bough_amt
                     trade_pnl -= self.transaction_cost * self.last_bough_amt
+                    self.returns_lst.append(trade_pnl/self.last_bough_amt)
                     self.total_transaction_cost += self.transaction_cost * self.last_bough_amt
                     self.net_pnl += trade_pnl
                     self.assets = 0
@@ -175,4 +179,5 @@ class Engine():
         # self.metrics["Number of Losing Trades"] = self.num_lose_trades
         # self.metrics["Final Cash"] = self.cash
         # self.metrics["Total Transaction cost"] = self.total_transaction_cost
+        self.metrics["Maximum Drawdown"] = max_drawdown(np.array(self.net_pnl_lst))
         return self.metrics
