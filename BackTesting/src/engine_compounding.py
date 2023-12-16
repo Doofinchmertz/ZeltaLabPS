@@ -109,8 +109,8 @@ class Engine():
 
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
 
-            if(signal != 0):
-                print(f"Trade at {timestamp} with price {price} and signal {signal}, total assets : {self.assets}, trade_pnl : {trade_pnl}, net_pnl : {self.net_pnl}, net_cash : {self.cash}")
+            # if(signal != 0):
+            #     print(f"Trade at {timestamp} with price {price} and signal {signal}, total assets : {self.assets}, trade_pnl : {trade_pnl}, net_pnl : {self.net_pnl}, net_cash : {self.cash}")
 
         if self.assets > 0:
             trade_pnl = self.assets * close - self.last_bough_amt
@@ -162,17 +162,17 @@ class Engine():
 
     def get_metrics(self) -> dict:
         self.metrics["Net PnL"] = self.net_pnl
-        self.metrics["Gross Profit"] = self.gross_profit
-        self.metrics["Gross Loss"] = self.gross_loss
-        self.metrics["Total Trades Closed"] = self.total_trades_closed
-        self.metrics["Sharpe Ratio"] = np.mean(np.array(self.daily_pnl_lst))/np.std(np.array(self.daily_pnl_lst))
-        self.metrics["Largest Winning Trade"] = self.largest_winning_trade
-        self.metrics["Largest Losing Trade"] = self.largest_losing_trade
-        self.metrics["Min Net PnL"] = self.min_net_pnl
-        self.metrics["Average Winning Trade"] = np.mean(np.array(self.winning_trades_lst))
-        self.metrics["Average Losing Trade"] = np.mean(np.array(self.losing_trades_lst))
-        self.metrics["Number of Winning Trades"] = self.num_win_trades
-        self.metrics["Number of Losing Trades"] = self.num_lose_trades
-        self.metrics["Final Cash"] = self.cash
-        self.metrics["Total Transaction cost"] = self.total_transaction_cost
+        # self.metrics["Gross Profit"] = self.gross_profit
+        # self.metrics["Gross Loss"] = self.gross_loss
+        # self.metrics["Total Trades Closed"] = self.total_trades_closed
+        # self.metrics["Sharpe Ratio"] = np.mean(np.array(self.daily_pnl_lst))/np.std(np.array(self.daily_pnl_lst))
+        # self.metrics["Largest Winning Trade"] = self.largest_winning_trade
+        # self.metrics["Largest Losing Trade"] = self.largest_losing_trade
+        # self.metrics["Min Net PnL"] = self.min_net_pnl
+        # self.metrics["Average Winning Trade"] = np.mean(np.array(self.winning_trades_lst))
+        # self.metrics["Average Losing Trade"] = np.mean(np.array(self.losing_trades_lst))
+        # self.metrics["Number of Winning Trades"] = self.num_win_trades
+        # self.metrics["Number of Losing Trades"] = self.num_lose_trades
+        # self.metrics["Final Cash"] = self.cash
+        # self.metrics["Total Transaction cost"] = self.total_transaction_cost
         return self.metrics
