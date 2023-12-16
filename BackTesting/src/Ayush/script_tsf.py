@@ -1,4 +1,3 @@
-
 import os
 import sys
 import threading
@@ -10,10 +9,10 @@ import threading
 def run_script(upper_treshold, lower_treshold, period, exit, lock):
     try:
         # print(f"At look back {look_back}, pred_window {pred_window}")
-        os.system(f"python .\Ayush\mfi_hp.py {upper_treshold} {lower_treshold} {period} {exit}")
-        os.system(f"python .\main_static.py --logs .\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv --ts 1h > .\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
+        os.system(f"python .\Ayush\mtsf_hp.py {upper_treshold} {lower_treshold} {period} {exit}")
+        os.system(f"python .\main_static.py --logs .\logs\mtsf_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv --ts 1h > .\output\outtsf_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
         # print("hi")
-        with open(f".\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt", "r") as file:
+        with open(f".\output\outtsf_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt", "r") as file:
             pnl = float(file.readline().strip())
         with lock:
             global best_pnl
@@ -28,8 +27,8 @@ def run_script(upper_treshold, lower_treshold, period, exit, lock):
             elif pnl > 0.9 * best_pnl:
                 print("Good pnl:", pnl, "at upper",upper_treshold, "and lower", lower_treshold, "and period", period, "and exit", exit)
         # os.system(f"rm .\logs\obv_{short_window}_{long_window}_{span_b_window}.csv")
-        os.remove(f".\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv")
-        os.remove(f".\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
+        os.remove(f".\logs\mtsf_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv")
+        os.remove(f".\output\outtsf_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
         # os.system(f"rm .\output\output_{short_window}_{long_window}_{span_b_window}.txt")
     finally:
         semaphore.release()
@@ -56,12 +55,12 @@ threads = []
 max_threads = 7
 semaphore = threading.BoundedSemaphore(max_threads)
 
-for upper_treshold in range(64, 70, 2):
-    for lower_treshold in range(16, 22, 2):
-        for period in range(15, 19, 2):
-            for exit in range(6, 13, 1):
+for upper_treshold in range(100, 140, 5):
+    for lower_treshold in range(150, 191, 10):
+        for period in range(12, 16, 1):
+            for exit in range(10, 11, 5):
                 semaphore.acquire()
-                thread = threading.Thread(target=run_script, args=(upper_treshold, lower_treshold, period, exit, lock))
+                thread = threading.Thread(target=run_script, args=(upper_treshold, -lower_treshold, period, exit, lock))
                 thread.start()
                 threads.append(thread)
         # exit()

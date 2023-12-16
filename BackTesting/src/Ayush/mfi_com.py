@@ -8,15 +8,14 @@ warnings.filterwarnings('ignore')
 # upper_treshold = 59
 # lower_treshold = 32
 
-upper_treshold = 74
-lower_treshold = 24
-period = 12
-exit = 10
+# upper_treshold = 74
+# lower_treshold = 24
+# period = 12
 
-# upper_treshold = int(sys.argv[1])
-# lower_treshold = int(sys.argv[2])
-# period = int(sys.argv[3])
-# exit = int(sys.argv[4])
+upper_treshold = int(sys.argv[1])
+lower_treshold = int(sys.argv[2])
+period = int(sys.argv[3])
+exit = int(sys.argv[4])
 
 # df = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\data\data\btcusdt_1h_train.csv")
 df1 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\dataset\train\btcusdt_1h_train.csv")
@@ -104,4 +103,3 @@ def generate_signals(df, flag_column, exit=exit):
 
 
 generate_signals(df, 'flag', exit=exit)
-df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv")
