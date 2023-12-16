@@ -131,7 +131,7 @@ class Static_Engine():
             if trade_closed:
                 self.trade_pnl_lst.append(trade_pnl)
                 self.trade_returns.append(trade_pnl + self.transaction_cost * self.each_trade_amount)
-                self.annual_trade_returns[str(timestamp.year)].append(trade_pnl + self.transaction_cost * self.each_trade_amount)
+                self.annual_trade_returns[str(timestamp.year)].append(trade_pnl)
                 self.logs.loc[row.Index, 'trade_pnl'] = trade_pnl
             if trade_pnl > 0:
                 self.gross_profit += trade_pnl
@@ -160,7 +160,7 @@ class Static_Engine():
             self.assets = 0
             self.trade_pnl_lst.append(trade_pnl)
             self.trade_returns.append(trade_pnl + self.transaction_cost * self.each_trade_amount )
-            self.annual_trade_returns[str(timestamp.year)].append(trade_pnl + self.transaction_cost * self.each_trade_amount)
+            self.annual_trade_returns[str(timestamp.year)].append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
@@ -185,7 +185,7 @@ class Static_Engine():
             self.assets = 0
             self.trade_pnl_lst.append(trade_pnl)
             self.trade_returns.append(trade_pnl +self.transaction_cost * self.each_trade_amount )
-            self.annual_trade_returns[str(timestamp.year)].append(trade_pnl + self.transaction_cost * self.each_trade_amount)
+            self.annual_trade_returns[str(timestamp.year)].append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             self.total_trades_closed += 1
             self.min_net_pnl = min(self.min_net_pnl, self.net_pnl)
