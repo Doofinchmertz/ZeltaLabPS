@@ -29,7 +29,7 @@ def print_metrics(metrics):
 
 def generate_results_static(args):
     # Make instance of static engine, add logs, run, get metrics and plot
-    e = Static_Engine(log_name = args.logs,  without_transaction_cost=args.wtc)
+    e = Static_Engine(without_transaction_cost=args.wtc)
     df = pd.read_csv(args.logs)
     e.add_logs(df)
     e.run()
