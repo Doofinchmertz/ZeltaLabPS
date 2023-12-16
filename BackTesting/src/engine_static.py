@@ -3,7 +3,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 import talib
-from empyrical import max_drawdown
 
 class Engine():
     def __init__(self, log_name = None, static_trade_amount = 1000, without_transaction_cost = False, tick_sz = 5) -> None:
@@ -231,13 +230,10 @@ class Engine():
         self.metrics["Number of Losing Trades"] = self.num_lose_trades
         self.net_portfolio_lst = np.array(self.net_pnl_lst) + self.each_trade_amount
         self.metrics["Maximum Drawdown"] = np.max((1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst)))*100
-        self.metrics["Maximum Drawdown"] = max_drawdown(np.array(self.trade_returns)/1000)*100
         self.metrics["Total Transaction Cost"] = self.total_transaction_cost
         self.metrics["Average Trade Holding Duration"] = np.mean([self.trade_holding_times])
         self.metrics["Maximum Trade Holding Duration"] = np.max([self.trade_holding_times])
         self.metrics["Immediate Losses"] = self.immediate_losses
         self.metrics["Immediate Profits"] = self.immediate_profits
         print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
-        
-        
         return self.metrics
