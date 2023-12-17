@@ -6,11 +6,11 @@ warnings.filterwarnings('ignore')
 
 
 #optimum parameter
-# length=int(sys.argv[1])
-# mult=float(sys.argv[2])
+length=int(sys.argv[1])
+mult=float(sys.argv[2])
 
-length=70
-mult= 2.6
+# length=70
+# mult= 2.6
 
 df1 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\dataset\train\btcusdt_1h_train.csv")
 df2 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\dataset\test\btcusdt_1h_test.csv")
@@ -92,5 +92,5 @@ df = determine_indicator(df)
 df = apply_trading_strategy(df, flag_column='indicator', log_column='signal')
 
 # Save to CSV
-# df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\ollin_{length}_{mult}.csv")
-df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\bollinger.csv")
+df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\ollin_{length}_{mult}.csv")
+# df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\bollinger.csv")
