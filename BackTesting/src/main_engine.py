@@ -43,10 +43,10 @@ class Static_Engine():
         self.open_price_lst = self.logs['open'].tolist()
         self.logs['trade_pnl'] = 0
         self.logs['trade_pnl'] = self.logs['trade_pnl'].astype('float64')
-        df = self.logs[self.logs['signal'] != 0] # get only the rows where signal is not 0 for faster execution
+        df = self.logs[self.logs['signals'] != 0] # get only the rows where signal is not 0 for faster execution
         first_timestamp = None
         for row in df.itertuples():
-            signal = int(row.signal)
+            signals = int(row.signals)
             timestamp = row.datetime
             timestamp = pd.to_datetime(timestamp)
             if first_timestamp is None:
@@ -62,11 +62,11 @@ class Static_Engine():
             price = close
             trade_closed = False
             
-            if (signal) not in [-1, 0, 1]:
+            if (signals) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
 
-            if(self.status + signal) not in [-1, 0, 1]:
+            if(self.status + signals) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
 
@@ -76,7 +76,7 @@ class Static_Engine():
 
             trade_pnl = 0
 
-            if signal == 1: # Buy Signal
+            if signals == 1: # Buy Signal
                 if(self.status == 0): # Initiate Long Trade
                     self.assets = self.each_trade_amount / price
                     self.last_trade_open_time = timestamp
@@ -93,7 +93,7 @@ class Static_Engine():
                     print(f"Invalid trade signal at {timestamp}")
                     continue
 
-            if signal == -1: # Sell Signal
+            if signals == -1: # Sell Signal
                 if(self.status == 0): # Initiate Short Trade
                     self.assets = -self.each_trade_amount / price
                     self.last_trade_open_time = timestamp
@@ -110,7 +110,7 @@ class Static_Engine():
                     print(f"Invalid trade signal at {timestamp}")
                     continue
 
-            self.status += signal ## Updating status
+            self.status += signals ## Updating status
 
             if trade_closed:
                 self.trade_pnl_lst.append(trade_pnl)
@@ -286,7 +286,7 @@ class Compounding_Engine():
         self.close_price_lst = self.logs['close'].tolist()
         self.open_price_lst = self.logs['open'].tolist()
         for row in self.logs.itertuples():
-            signal = int(row.signal)
+            signals = int(row.signals)
             open = row.open
             close = row.close
             price = close 
@@ -301,11 +301,11 @@ class Compounding_Engine():
                 self.annual_trade_returns[str(timestamp.year)] = list()
                 first_timestamp = timestamp
 
-            if (signal) not in [-1, 0, 1]:
+            if (signals) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
 
-            if(self.status + signal) not in [-1, 0, 1]:
+            if(self.status + signals) not in [-1, 0, 1]:
                 print(f"Invalid trade signal at {timestamp}")
                 continue
 
@@ -315,7 +315,7 @@ class Compounding_Engine():
 
             trade_pnl = 0
 
-            if signal == 1: # Buy Signal
+            if signals == 1: # Buy Signal
                 if(self.status == 0): # Initiate Long Trade
                     self.assets = self.cash / price
                     self.last_bough_amt = self.cash
@@ -335,7 +335,7 @@ class Compounding_Engine():
                     print(f"Invalid trade signal at {timestamp}")
                     continue
 
-            if signal == -1: # Sell Signal
+            if signals == -1: # Sell Signal
                 if(self.status == 0): # Initiate Short Trade
                     self.assets = -self.cash / price
                     self.last_sold_amt = self.cash
@@ -356,7 +356,7 @@ class Compounding_Engine():
                     continue
 
             ## Updating status
-            self.status += signal
+            self.status += signals
             self.daily_pnl_lst.append(trade_pnl)
             self.net_pnl_lst.append(self.net_pnl)
             self.annual_trade_returns[str(timestamp.year)].append(trade_pnl)
@@ -452,7 +452,8 @@ class Compounding_Engine():
 
     def get_metrics(self) -> dict:
         self.metrics["Net PnL"] = self.net_pnl
-        self.metrics["Buy and Hold PnL"] = (self.close_price_lst[-1] - self.close_price_lst[0]) * self.each_trade_amount / self.close_price_lst[0]
+        # self.metrics["Buy and Hold PnL"] = (self.last_open - self.first_open - self.transaction_fee*(self.last_open + self.first_open))/self.first_open*100
+        self.metrics["Buy and Hold PnL"] = (self.close_price_lst[-1] - self.close_price_lst[0]) * self.initial_cash / self.close_price_lst[0]
         self.metrics["Gross Profit"] = self.gross_profit
         self.metrics["Gross Loss"] = self.gross_loss
         self.metrics["Total Trades Closed"] = self.total_trades_closed
@@ -466,7 +467,7 @@ class Compounding_Engine():
         self.metrics["Number of Losing Trades"] = self.num_lose_trades
         self.metrics["Final Cash"] = self.cash
         self.metrics["Maximum Drawdown"] = max_drawdown(np.array(self.returns_lst))
-        self.metrics["Total Transaction cost"] = self.total_transaction_cost
+        self.metrics["Total Transaction Cost"] = self.total_transaction_cost
         self.metrics["Average Trade Holding Duration"] = np.mean([self.trade_holding_times])
         self.metrics["Maximum Trade Holding Duration"] = np.max([self.trade_holding_times])
         self.metrics["Annual Maximum Drawdowns"] = {}
