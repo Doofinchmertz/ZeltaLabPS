@@ -452,7 +452,8 @@ class Compounding_Engine():
 
     def get_metrics(self) -> dict:
         self.metrics["Net PnL"] = self.net_pnl
-        self.metrics["Buy and Hold PnL"] = (self.close_price_lst[-1] - self.close_price_lst[0]) * self.each_trade_amount / self.close_price_lst[0]
+        # self.metrics["Buy and Hold PnL"] = (self.last_open - self.first_open - self.transaction_fee*(self.last_open + self.first_open))/self.first_open*100
+        self.metrics["Buy and Hold PnL"] = (self.close_price_lst[-1] - self.close_price_lst[0]) * self.initial_cash / self.close_price_lst[0]
         self.metrics["Gross Profit"] = self.gross_profit
         self.metrics["Gross Loss"] = self.gross_loss
         self.metrics["Total Trades Closed"] = self.total_trades_closed
@@ -466,7 +467,7 @@ class Compounding_Engine():
         self.metrics["Number of Losing Trades"] = self.num_lose_trades
         self.metrics["Final Cash"] = self.cash
         self.metrics["Maximum Drawdown"] = max_drawdown(np.array(self.returns_lst))
-        self.metrics["Total Transaction cost"] = self.total_transaction_cost
+        self.metrics["Total Transaction Cost"] = self.total_transaction_cost
         self.metrics["Average Trade Holding Duration"] = np.mean([self.trade_holding_times])
         self.metrics["Maximum Trade Holding Duration"] = np.max([self.trade_holding_times])
         self.metrics["Annual Maximum Drawdowns"] = {}
