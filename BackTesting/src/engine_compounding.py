@@ -179,5 +179,5 @@ class Engine():
         # self.metrics["Number of Losing Trades"] = self.num_lose_trades
         # self.metrics["Final Cash"] = self.cash
         # self.metrics["Total Transaction cost"] = self.total_transaction_cost
-        self.metrics["Maximum Drawdown"] = max_drawdown(np.array(self.net_pnl_lst))
+        # self.metrics["Maximum Drawdown"] = max_drawdown(np.array(self.net_pnl_lst))
         return self.metrics

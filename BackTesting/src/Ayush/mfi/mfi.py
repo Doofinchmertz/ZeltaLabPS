@@ -60,8 +60,8 @@ def generate_signals(df, flag_column, exit=exit):
 
 ## Using a ATR based stop loss for risk management
 
-df["atr"] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=period)
-df["sl_thresh"] = multiplier*df["atr"]/df["close"]
+df["atr"] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=period_atr)
+df["sl_thresh"] = multiplier_atr*df["atr"]/df["close"]
 df["sl_thresh"] = df["sl_thresh"].fillna(0)
 
 ## Using stop loss with adaptive threshold
@@ -176,7 +176,7 @@ def gen_logs_v2(df):
 # Assuming you have a DataFrame named 'df' with columns 'log' and 'flag'
 
 # saves the logs
-df['signals'] = df['logs']
 generate_signals(df, 'flag_mfi', exit=exit)
 gen_logs_v2(df)
+df['signals'] = df['logs']
 df.to_csv(rf".\logs\mfi.csv")

@@ -4,7 +4,7 @@ import talib
 import warnings
 import sys
 warnings.filterwarnings('ignore')
-from optimum_param import *
+# from optimum_param import *
 
 # upper_treshold = 59
 # lower_treshold = 32
@@ -30,6 +30,7 @@ df3.rename(columns={'Volume USDT' : 'volume'}, inplace=True)
 df4 = df3[['datetime', 'open', 'high', 'low', 'close', 'volume']]
 
 df = pd.concat([df1, df2, df4], ignore_index=True)
+# df = pd.concat([df1, df2], ignore_index=True)
 df = df.reset_index(drop=True)
 
 def money_flow_index(data, period=14):
@@ -104,11 +105,11 @@ def generate_signals(df, flag_column, exit=exit):
 
 
 ## Using a ATR based stop loss for risk management
-period = 15
-multiplier = 9
+period_atr = 15
+multiplier_atr = 9
 
-df["atr"] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=period)
-df["sl_thresh"] = multiplier*df["atr"]/df["close"]
+df["atr"] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=period_atr)
+df["sl_thresh"] = multiplier_atr*df["atr"]/df["close"]
 df["sl_thresh"] = df["sl_thresh"].fillna(0)
 
 ## Using stop loss with adaptive threshold
@@ -227,5 +228,6 @@ generate_signals(df, 'flag_mfi', exit=exit)
 gen_logs_v2(df)
 df["signal"] = df["logs"]
 
+# print("HI")
 df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv")
-# df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\mfi2.csv")
+# df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\mfi424.csv")

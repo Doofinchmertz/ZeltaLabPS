@@ -2,40 +2,19 @@ import pandas as pd
 import numpy as np
 import sys
 import warnings
+import argparse
+from utils import *
+from optimum_param import *
 warnings.filterwarnings('ignore')
 
-
-#optimum parameter
-length=int(sys.argv[1])
-mult=float(sys.argv[2])
-
-# length=70
-# mult= 2.7
-
-df1 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\dataset\train\btcusdt_1h_train.csv")
-df2 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\dataset\test\btcusdt_1h_test.csv")
-
-df = pd.concat([df1, df2], ignore_index=True)
+parser = argparse.ArgumentParser(description="Trend Strategy")
+parser.add_argument("--data", type = str,  help = "Path to data file", required = True)
+args = parser.parse_args()
+df = pd.read_csv(args.data)
 df = df.reset_index(drop=True)
 
-
-def calculate_bollinger_bands(df, length, mult):
-    """Calculate Bollinger Bands."""
-    basis = df['close'].rolling(window=length).mean()
-    dev = df['close'].rolling(window=length).std()
-    df['upper_threshold'] = basis + (mult * dev)
-    df['lower_threshold'] = basis - (mult * dev)
-    return df
-
-def determine_indicator(df):
-    """Determine the market situation for trading."""
-    df['indicator'] = 0
-    df.loc[df['close'] > df['upper_threshold'], 'indicator'] = 1
-    df.loc[df['close'] < df['lower_threshold'], 'indicator'] = -1
-    return df
-
 def apply_trading_strategy(df, flag_column, log_column, stop_loss_thresh=-0.07):
-    """Apply trading strategy based on Bollinger Bands."""
+    """Apply trading strategy based on trend Bands."""
     exit_loss = 0
     compare = 0
     df[log_column] = np.nan
@@ -79,14 +58,13 @@ def apply_trading_strategy(df, flag_column, log_column, stop_loss_thresh=-0.07):
     return df
 
 # Calculate Bollinger Bands
-df = calculate_bollinger_bands(df, length, mult)
+df = calculate_trend(df, length, mult)
 
 # Determine Indicator
 df = determine_indicator(df)
 
 # Apply Trading Strategy
-df = apply_trading_strategy(df, flag_column='indicator', log_column='signal')
+df = apply_trading_strategy(df, flag_column='indicator', log_column='signals')
 
 # Save to CSV
-df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\ollin_{length}_{mult}.csv")
-# df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\bollin.csv")
+df.to_csv(".\logs\mfi.csv")
