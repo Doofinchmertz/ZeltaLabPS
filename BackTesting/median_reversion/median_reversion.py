@@ -87,27 +87,26 @@ def clear_folders():
 
 clear_folders()
 
-df = pd.read_csv("../data/btcusdt_3m_total.csv")
+df = pd.read_csv("../data/btcusdt_3m_diamond.csv")
 
 
-MEDIAN_WINDOW = 25
+MEDIAN_WINDOW = 40
 
 REVERSION_THRESH = 2
-TREND_THRESH = 2.5
-STOPLOSS = .06
-MIN_SL_CAP = 0.02
+TREND_THRESH = 3
+STOPLOSS = .09
 PROFIT_CAP = 0.02
 MIN_PROFIT_CAP = 0.004
 MAX_TRADE_HOLD = 1800
 
-PROFIT_CAP_MULTIPLIER = 0.04
-STOPLOSS_MULTIPLIER = 0.06
+PROFIT_CAP_MULTIPLIER = 0.05
+STOPLOSS_MULTIPLIER = 0.11
 
 DI_WINDOW = 15
 DDI_REV_THRESH = 10
 DDI_TREND_THRESH = 50
 
-PROFIT_LOSS_WINDOW = 10
+PROFIT_LOSS_WINDOW = 25
 
 q = deque(maxlen=PROFIT_LOSS_WINDOW)
 
@@ -220,9 +219,7 @@ for i in range(MEDIAN_WINDOW, len(df)):
         count += 1  
         if count%100 == 0:
             print(f"Plotting {count}th trade")
-        # if i > 0.*len(df):
-        #     if exit_title == "STOPLOSS":
-        #         plots_candlestick(df, entry_idx, exit_idx, starting_position, entry_title + " " + exit_title)
+        # plots_candlestick(df, entry_idx, exit_idx, starting_position, entry_title + " " + exit_title)
         entry_idx = None
         exit_idx = None
 

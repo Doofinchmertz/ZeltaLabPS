@@ -2,11 +2,10 @@ import pandas as pd
 import talib
 from sklearn.linear_model import LinearRegression
 import numpy as np
-from matplotlib import pyplot as plt
-import seaborn as sns
 
 ts = '1h'
-df = pd.read_csv(f"../data/btcusdt_{ts}_train.csv")
+name = 'diamond'
+df = pd.read_csv(f"../data/btcusdt_{ts}_{name}.csv")
 
 df['Next_2h_Return'] = df['close'].shift(-2) / df['close'] - 1
 df['Next_2h_Return'] = df['Next_2h_Return']*1000
@@ -34,34 +33,23 @@ shifted_signal = df['signal'].shift(1)
 shifted_signal.fillna(0, inplace=True)
 df['macd'].fillna(0, inplace=True)
 df['macd_signal'] = df['signal'] - shifted_signal
-###
-df['NATR'] = talib.NATR(df['high'], df['low'], df['close'], timeperiod=14)
-###
+
 df = df.drop(['RSI', 'macd', 'signal', 'EMA'], axis=1)
 df.dropna(inplace=True)
+df.to_csv(f"data/btcusdt_{ts}_{name}.csv", index=False)
 
-
+df = pd.read_csv(f"data/btcusdt_1h_{name}.csv")
 df['datetime'] = pd.to_datetime(df['datetime'])
 df.set_index(df['datetime'], inplace=True)
 
 y = df['Next_2h_Return']
-X = df.drop(['Next_2h_Return', 'open', 'high', 'low', 'close', 'datetime', 'volume', 'ADOSC'], axis=1)
+X = df.drop(['Next_2h_Return', 'open', 'high', 'low', 'close', 'datetime', 'volume'], axis=1)
 
-# correlation_matrix = X.corr()
-# plt.figure(figsize=(10, 8))
-# sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
-# plt.title('Correlation Heatmap')
-# plt.show()
-
-# exit()
 look_back = 1248
 pred_window = 1056
 k = 2
 cut = 2.5
-lamda = 0.8
 
-old_coef = np.zeros(X.shape[1])
-old_intercept = 0
 df['predicted_return'] = 0
 model = LinearRegression()
 for i in range(look_back, len(X) - pred_window, pred_window):
