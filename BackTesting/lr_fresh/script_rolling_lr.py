@@ -12,7 +12,7 @@ df.set_index(df['datetime'], inplace=True)
 y = df['Next_2h_Return']
 X = df.drop(['Next_2h_Return', 'open', 'close', 'datetime', 'volume', 'high', 'low'], axis=1)
 
-cut = 1.5
+cut = 2
 
 def run_script(look_back, pred_window, lock):
     try:
@@ -69,7 +69,7 @@ threads = []
 lb_step = 96
 pw_step = 24
 with concurrent.futures.ThreadPoolExecutor(max_threads) as executor:
-    for look_back in range(90*lb_step, lb_step*100, lb_step):
+    for look_back in range(40*lb_step, lb_step*50, lb_step):
         print(f"Look back: {look_back}")
         for pred_window in range(pw_step, look_back//2, 2*pw_step):
             semaphore.acquire()
