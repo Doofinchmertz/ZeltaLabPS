@@ -85,4 +85,4 @@ df = determine_indicator(df)
 df = apply_trading_strategy(df, flag_column='indicator', log_column='signal')
 
 # Save to CSV
-df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\Ayush\mfi\logs\bollinger_{length}_{mult}.csv")
+df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\ollin_{length}_{mult}.csv")

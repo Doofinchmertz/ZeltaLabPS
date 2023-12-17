@@ -9,10 +9,10 @@ from optimum_param import *
 # upper_treshold = 59
 # lower_treshold = 32
 
-# upper_treshold = 77
-# lower_treshold = 13
-# period = 10
-# exit = 13
+upper_treshold = 74
+lower_treshold = 13
+period = 10
+exit = 13
 
 ## For parameter tuning
 ## Tuning was done on first 60 percent of data and then run on the entire 
@@ -23,8 +23,13 @@ from optimum_param import *
 
 df1 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\dataset\train\btcusdt_1h_train.csv")
 df2 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\dataset\test\btcusdt_1h_test.csv")
+df3 = pd.read_csv(r"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\Ayush\data.csv")
 
-df = pd.concat([df1, df2], ignore_index=True)
+df3.rename(columns={'date': 'datetime'}, inplace=True)
+df3.rename(columns={'Volume USDT' : 'volume'}, inplace=True)
+df4 = df3[['datetime', 'open', 'high', 'low', 'close', 'volume']]
+
+df = pd.concat([df1, df2, df4], ignore_index=True)
 df = df.reset_index(drop=True)
 
 def money_flow_index(data, period=14):
@@ -222,4 +227,4 @@ generate_signals(df, 'flag_mfi', exit=exit)
 gen_logs_v2(df)
 df["signals"] = df["logs"]
 
-df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\Ayush\mfi\logs\mfi.csv")
+df.to_csv(rf"C:\Users\ayush\Desktop\IITB\ZeltaLabPS\BackTesting\src\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv")

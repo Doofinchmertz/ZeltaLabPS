@@ -11,8 +11,8 @@ def run_script(upper_treshold, lower_treshold, period, exit, lock):
     try:
         # print(f"At look back {look_back}, pred_window {pred_window}")
         os.system(f"python .\Ayush\mfi_hp.py {upper_treshold} {lower_treshold} {period} {exit}")
-        # os.system(f"python .\main_static.py --logs .\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv --ts 1h > .\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
-        os.system(f"python .\main_compounding.py --logs .\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv > .\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
+        os.system(f"python .\main_static.py --logs .\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv --ts 1h> .\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
+        # os.system(f"python .\main_compounding.py --logs .\logs\mfi_{upper_treshold}_{lower_treshold}_{period}_{exit}.csv > .\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt")
  
        # print("hi")
         with open(f".\output\output_{upper_treshold}_{lower_treshold}_{period}_{exit}.txt", "r") as file:
@@ -55,7 +55,7 @@ best_exit = 1
 lock = threading.Lock()
 threads = []
 
-max_threads = 7
+max_threads = 1
 semaphore = threading.BoundedSemaphore(max_threads)
 
 for upper_treshold in range(71, 80, 1):
