@@ -51,8 +51,8 @@ threads = []
 max_threads = 7
 semaphore = threading.BoundedSemaphore(max_threads)
 
-for length in range(35, 71, 5):
-    for mult in range(20, 30, 1):
+for length in range(65, 81, 1):
+    for mult in range(25, 35, 1):
             semaphore.acquire()
             thread = threading.Thread(target=run_script, args=(length, mult/10, lock))
             thread.start()
