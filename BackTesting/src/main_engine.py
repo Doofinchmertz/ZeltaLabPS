@@ -238,11 +238,12 @@ class Static_Engine():
         self.metrics["Annual Maximum Drawdowns"] = {}
         self.metrics["Annual Returns"] = {}
         for year, trade_returns in self.annual_trade_returns.items():
-            annual_max_drawdown = max_drawdown(np.array(trade_returns)/1000) * 100
-            annual_return = sum(trade_returns)
-            self.metrics["Annual Maximum Drawdowns"][year] = annual_max_drawdown
-            self.metrics["Annual Returns"][year] = (100*annual_return)/1000
-        print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
+            net_returns = np.array(trade_returns).cumsum()
+            net_portfolio = net_returns + self.each_trade_amount
+            self.metrics["Annual Maximum Drawdowns"][year] = np.max((1-net_portfolio/np.maximum.accumulate(net_portfolio)))*100
+            annual_return = sum(trade_returns)/self.each_trade_amount*100
+            self.metrics["Annual Returns"][year] = annual_return
+        # print(f"Maximum Drawdown location : {np.argmax(1 - self.net_portfolio_lst / np.maximum.accumulate(self.net_portfolio_lst))}")
         return self.metrics
     
 
@@ -430,7 +431,7 @@ class Compounding_Engine():
         fig, ax = plt.subplots()
         ax.plot(self.net_pnl_lst, label='Net PnL', color='blue')
         ax.axhline(y=0, color='black', linestyle='--')
-        ax.set_title("Net PnL and Close Price for Static Approach")
+        ax.set_title("Net PnL and Close Price for Compounding Approach")
         
         ax.set_xlabel("Time")
         ax.set_ylabel("Net PnL")
@@ -477,7 +478,10 @@ class Compounding_Engine():
         self.metrics["Annual Returns"] = {}
         for year, trade_returns in self.annual_trade_returns.items():
             annual_max_drawdown = max_drawdown(np.array(trade_returns))*100
-            annual_return = sum(trade_returns)
-            self.metrics["Annual Maximum Drawdowns"][year] = annual_max_drawdown
+            annual_return = 1
+            for trade_ret in trade_returns:
+                annual_return *= (1+trade_ret)
+            annual_return -= 1
+            self.metrics["Annual Maximum Drawdowns"][year] = -annual_max_drawdown
             self.metrics["Annual Returns"][year] = (100*annual_return)
         return self.metrics

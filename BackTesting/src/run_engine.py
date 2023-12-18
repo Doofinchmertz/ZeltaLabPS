@@ -29,33 +29,33 @@ def print_metrics(metrics):
 
 def generate_results_static(args):
     # Make instance of static engine, add logs, run, get metrics and plot
-    e = Static_Engine(without_transaction_cost=args.wtc)
+    e1 = Static_Engine(without_transaction_cost=args.wtc)
     df = pd.read_csv(args.logs)
-    e.add_logs(df)
-    e.run()
-    metrics = e.get_metrics()
+    e1.add_logs(df)
+    e1.run()
+    metrics1 = e1.get_metrics()
     print("\n" + "*"*60)
     print("*" + " " * 58 + "*")
     print("*" + "Results for Static Method".center(58) + "*")
     print("*" + " " * 58 + "*")
     print("*"*60 + "\n")
-    print_metrics(metrics)
-    e.plot()
+    print_metrics(metrics1)
+    # e1.plot()
 
 def generate_results_compounding(args):
     # Make instance of compounding engine, add logs, run, get metrics and plot
-    e = Compounding_Engine()
+    e2 = Compounding_Engine()
     df = pd.read_csv(args.logs)
-    e.add_logs(df)
-    e.run()
-    metrics = e.get_metrics()
+    e2.add_logs(df)
+    e2.run()
+    metrics2 = e2.get_metrics()
     print("\n" + "*"*60)
     print("*" + " " * 58 + "*")
     print("*" + "Results for Compounding Method".center(58) + "*")
     print("*" + " " * 58 + "*")
     print("*"*60 + "\n")
-    print_metrics(metrics)
-    e.plot()
+    print_metrics(metrics2)
+    # e2.plot()
 
 def run_method(args):
     methods = {
