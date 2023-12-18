@@ -29,7 +29,7 @@ df3.rename(columns={'date': 'datetime'}, inplace=True)
 df3.rename(columns={'Volume USDT' : 'volume'}, inplace=True)
 df4 = df3[['datetime', 'open', 'high', 'low', 'close', 'volume']]
 
-df = pd.concat([df1, df2], ignore_index=True)
+df = pd.concat([df1], ignore_index=True)
 df = df.reset_index(drop=True)
 
 def money_flow_index(data, period=14):

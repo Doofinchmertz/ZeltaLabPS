@@ -40,7 +40,7 @@ def generate_results_static(args):
     print("*" + " " * 58 + "*")
     print("*"*60 + "\n")
     print_metrics(metrics1)
-    # e1.plot()
+    e1.plot()
 
 def generate_results_compounding(args):
     # Make instance of compounding engine, add logs, run, get metrics and plot
@@ -55,7 +55,7 @@ def generate_results_compounding(args):
     print("*" + " " * 58 + "*")
     print("*"*60 + "\n")
     print_metrics(metrics2)
-    # e2.plot()
+    e2.plot()
 
 def run_method(args):
     methods = {
